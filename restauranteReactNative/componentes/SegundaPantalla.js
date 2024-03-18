@@ -5,7 +5,7 @@ import Pantalla2Screen from './SegundaPantalla';
 import Pantalla3Screen from './TerceiraPantalla';
 import Pantalla4Screen from './CuartaPantalla';
 import Pantalla5Screen from './QuintaPantalla';
-import Menu from './menu'; 
+import Menu from './menu';
 
 export default function SegundaPantalla() {
   const [currentPantalla, setCurrentPantalla] = React.useState(null);

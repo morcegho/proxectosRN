@@ -1,13 +1,12 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import Pantalla1Screen from './PrimeiraPantalla';
 import Pantalla2Screen from './SegundaPantalla';
 import Pantalla3Screen from './TerceiraPantalla';
 import Pantalla4Screen from './CuartaPantalla';
 import Pantalla5Screen from './QuintaPantalla';
-import Menu from './menu';
 
-export default function TerceiraPantalla() {
+export default function Menu() {
   const [currentPantalla, setCurrentPantalla] = React.useState(null);
 
   // Esta función maneja el evento cuando se presiona un botón en el menú
@@ -36,12 +35,12 @@ export default function TerceiraPantalla() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
       {currentPantalla === null ? (
         // Si no se ha seleccionado un pantalla, muestra los botones del menú
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={() => handleMenuPress('Pantalla1')}>
-            <Text style={styles.buttonText}>Esta é a terceira pantalla</Text>
+            <Text style={styles.buttonText}>Pantalla 1</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => handleMenuPress('Pantalla2')}>
             <Text style={styles.buttonText}>Pantalla 2</Text>
@@ -56,55 +55,12 @@ export default function TerceiraPantalla() {
             <Text style={styles.buttonText}>Pantalla 5</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => handleMenuPress('Inicio')}>
-            <Text style={styles.buttonText}>Menú Inicio</Text>
+            <Text style={styles.buttonText}>Xa estás no Menú Inicio</Text>
           </TouchableOpacity>
         </View>
       ) : (
-        // Si se ha seleccionado un pantalla, muestra la pantalla de ese pantalla
         renderPantallaScreen()
       )}
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: 'orange',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    marginVertical: 10,
-    minWidth: "90%",
-    borderRadius: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-});
-
-/**
- import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-
-export default function Menu() {
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Pantalla 1</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Pantalla 2</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Pantalla 3</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Pantalla 4</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Pantalla 5</Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -113,20 +69,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end', // Alinea los elementos al final del contenedor
+  },
+  buttonContainer: {
+    flexDirection: 'column', // Cambiado a column para orden vertical
+    alignItems: 'center', // Centra los elementos horizontalmente
+    paddingBottom: 20, // Espacio inferior para separar los botones del borde inferior de la pantalla
   },
   button: {
-    backgroundColor: '#007bff',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
     paddingVertical: 15,
     paddingHorizontal: 30,
-    marginVertical: 10,
     borderRadius: 10,
+    width: "100%",
+    elevation: 5, // Esto añade un efecto de elevación para que parezcan botones de cristal
+    marginVertical: 5, // Espacio vertical entre los botones
   },
   buttonText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 18,
     fontWeight: 'bold',
   },
 });
-*/
+
+
