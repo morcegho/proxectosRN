@@ -1,0 +1,74 @@
+{
+    "mesas": [
+      {
+        "numero": 1,
+        "plazas": 4,
+        "ocupada": false,
+        "cliente": null,
+        "pedido": [],
+        "precioTotal": 0,
+        "pagado": false,
+        "terraza": false,
+        "numComensales": 0,
+        "estado": "libre"
+      },
+      {
+        "numero": 2,
+        "plazas": 2,
+        "ocupada": true,
+        "cliente": "Juan",
+        "pedido": [
+          {"id": 3, "nombre": "Hamburguesa", "precio": 8.5},
+          {"id": 7, "nombre": "Refresco", "precio": 2}
+        ],
+        "precioTotal": 10.5,
+        "pagado": true,
+        "terraza": false,
+        "numComensales": 1,
+        "estado": "pagada"
+      },
+      {
+        "numero": 3,
+        "plazas": 6,
+        "ocupada": false,
+        "cliente": null,
+        "pedido": [],
+        "precioTotal": 0,
+        "pagado": false,
+        "terraza": true,
+        "numComensales": 0,
+        "estado": "libre"
+      },
+      {
+        "numero": 4,
+        "plazas": 3,
+        "ocupada": true,
+        "cliente": "María",
+        "pedido": [
+          {"id": 1, "nombre": "Pizza", "precio": 9.99},
+          {"id": 8, "nombre": "Agua", "precio": 1.5}
+        ],
+        "precioTotal": 11.49,
+        "pagado": true,
+        "terraza": true,
+        "numComensales": 1,
+        "estado": "pagada"
+      },
+      {
+        "numero": 5,
+        "plazas": 2,
+        "ocupada": true,
+        "cliente": "Pedro",
+        "pedido": [
+          {"id": 2, "nombre": "Sándwich", "precio": 7.25},
+          {"id": 5, "nombre": "Café", "precio": 1.8}
+        ],
+        "precioTotal": 9.05,
+        "pagado": false,
+        "terraza": false,
+        "numComensales": 1,
+        "estado": "pendiente de servir"
+      }
+    ]
+  }
+  
