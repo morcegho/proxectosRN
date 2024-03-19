@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, StyleSheet, Text, Modal, ScrollView, Switch, TextInput, ImageBackground } from 'react-native';
 import { obterMesas, crearMesa, actualizarMesa, eliminarMesa } from './DatabaseConnect';
-import { carta, menus, bebidas } from './ListaAlimentos';
+import { carta, menus, bebidas } from './ListaAlimentos'; // Importamos las listas de alimentos
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-function ModalMesasDisponibles({ visible, onClose, mesas, onSelectMesa, numComensais }) {
-  const mesasFiltradas = mesas.filter(mesa => mesa.capacidad >= numComensais);
+// Nuevo componente para el modal de mesas disponibles
+function ModalMesasDisponibles({ visible, onClose, mesas, onSelectMesa, numComensales }) {
+  // Filtrar las mesas según la capacidad
+  const mesasFiltradas = mesas.filter(mesa => mesa.capacidad >= numComensales);
 
   return (
     <Modal visible={visible} animationType="slide">
       <View style={styles.modalContainer}>
-        <Text style={styles.modalTitle}>Mesas Dispoñibles</Text>
+        <Text style={styles.modalTitle}>Mesas Disponibles</Text>
         <ScrollView>
           <View style={styles.gridContainer}>
+            {/* Renderizar las mesas filtradas en dos columnas */}
             {mesasFiltradas.map((mesa, index) => (
               <TouchableOpacity
                 key={mesa.id}
@@ -23,7 +26,7 @@ function ModalMesasDisponibles({ visible, onClose, mesas, onSelectMesa, numComen
                 }}
               >
                 <Text style={styles.itemName}>Mesa {mesa.id}</Text>
-                <Text style={styles.itemPrice}>Capacidade: {mesa.capacidad}</Text>
+                <Text style={styles.itemPrice}>Capacidad: {mesa.capacidad}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -36,11 +39,39 @@ function ModalMesasDisponibles({ visible, onClose, mesas, onSelectMesa, numComen
   );
 }
 
+
+// En la función Menu(), dentro de handleSeleccionarMesa()
+const handleSeleccionarMesa = async () => {
+  try {
+    const mesasDisponibles = await consultarMesasDisponibles();
+    if (mesasDisponibles.length > 0) {
+      setMesasDisponibles(mesasDisponibles); // Actualiza el estado con las mesas disponibles
+      setModalVisible(true); // Muestra el modal con las mesas disponibles
+    } else {
+      console.log('No hay mesas disponibles.');
+      // Manejar el caso en que no haya mesas disponibles
+    }
+  } catch (error) {
+    console.error('Error al seleccionar la mesa:', error);
+    // Manejo de errores
+  }
+};
+
+
+
+
+// Componente para el contenido del modal de "Carta" y "Bebidas" (reutilizado)
 function ModalCartaBebidas({ visible, onClose, addToOrder, data, title }) {
   const [selectedItems, setSelectedItems] = useState([]);
 
   const handleItemPress = (item) => {
-    const updatedItems = selectedItems.includes(item) ? selectedItems.filter(selectedItem => selectedItem !== item) : [...selectedItems, item];
+    const updatedItems = [...selectedItems];
+    const index = updatedItems.findIndex((selectedItem) => selectedItem.id === item.id);
+    if (index === -1) {
+      updatedItems.push(item);
+    } else {
+      updatedItems.splice(index, 1);
+    }
     setSelectedItems(updatedItems);
   };
 
@@ -58,7 +89,7 @@ function ModalCartaBebidas({ visible, onClose, addToOrder, data, title }) {
             {data.map((item) => (
               <TouchableOpacity
                 key={item.id}
-                style={[styles.gridItem, selectedItems.includes(item) && styles.selectedItem]}
+                style={[styles.gridItem, selectedItems.some((selectedItem) => selectedItem.id === item.id) && styles.selectedItem]}
                 onPress={() => handleItemPress(item)}
               >
                 <Text style={styles.itemName}>{item.name}</Text>
@@ -81,27 +112,31 @@ function ModalCartaBebidas({ visible, onClose, addToOrder, data, title }) {
 }
 
 export default function Menu() {
-  const [modalVisible, setModalVisible] = useState(false);
   const [currentPantalla, setCurrentPantalla] = useState(null);
   const [pedido, setPedido] = useState([]);
   const [totalGastado, setTotalGastado] = useState(0);
   const [mesaSeleccionada, setMesaSeleccionada] = useState(null);
   const [terraza, setTerraza] = useState(false);
-  const [numComensais, setNumComensais] = useState('');
+  const [numComensales, setNumComensales] = useState('');
   const [mesasDisponibles, setMesasDisponibles] = useState([]);
+  // En la función Menu(), antes del return()
+  const [modalVisible, setModalVisible] = useState(false);
+
 
   useEffect(() => {
     async function obterContidoBase() {
       try {
         const mesas = await obterMesas();
-        console.log('Contido da base de datos:', mesas);
+        console.log('Contenido de la base de datos:', mesas);
       } catch (error) {
-        console.error('Erro ao obter o contido da base de datos:', error);
+        console.error('Error al obtener el contenido de la base de datos:', error);
       }
     }
 
     obterContidoBase();
   }, []);
+
+
   const consultarMesasDisponibles = async () => {
     try {
       const mesasLibres = await verificarDisponibilidadMesas(); // Utiliza mesasLibres en lugar de mesasDisponibles
@@ -131,17 +166,17 @@ export default function Menu() {
       // Obtener todas las mesas de la base de datos
       const mesasDisponibles = await obterMesas();
 
-      // Verificar disponibilidade de cada mesa buscada
+      // Verificar disponibilidad de cada mesa buscada
       const mesasLibres = mesasBuscadas.filter(mesaBuscada => {
         const mesaEncontrada = mesasDisponibles.find(mesa => mesa.id === mesaBuscada.id);
-        // Se no está ocupada ou non se atopa na base de datos, está dispoñible
+        // Si la mesa no está ocupada o no se encuentra en la base de datos, está disponible
         return !mesaEncontrada || !mesaEncontrada.ocupada;
       });
 
-      // Devolver as mesas libres encontradas
+      // Devolver las mesas libres encontradas
       return mesasLibres;
     } catch (error) {
-      console.error('Erro ao verificar a dispoñibilidade de mesas:', error);
+      console.error('Error al verificar la disponibilidad de mesas:', error);
       return [];
     }
   };
@@ -164,21 +199,60 @@ export default function Menu() {
     setTotalGastado(totalGastado - removedItem.price);
   };
 
+
+
   const handleTerrazaChange = (value) => {
     setTerraza(value);
   };
 
-  const handleSeleccionarMesa = async () => {
+  const handleSeleccionarMesa = async (mesa) => {
     try {
-      const mesasDispoñibles = await consultarMesasDisponibles();
-      if (mesasDispoñibles.length > 0) {
-        setMesasDisponibles(mesasDispoñibles);
-        setModalVisible(true);
+      await actualizarMesa(mesa.id, { estado: 'Reservada' }); // Actualizar el estado de la mesa en la base de datos
+      setMesaSeleccionada({ ...mesa, estado: 'Reservada' });
+    } catch (error) {
+      console.error('Error al seleccionar la mesa:', error);
+    }
+    // };
+    // const handleSeleccionarMesa = async () => {
+    try {
+      const mesasDisponibles = await consultarMesasDisponibles();
+      const mesasDisponiblesParaComensales = mesasDisponibles.filter(mesa => mesa.capacidad >= parseInt(numComensales));
+
+      if (mesasDisponiblesParaComensales.length > 0) {
+        setMesasDisponibles(mesasDisponibles); // Actualiza el estado con las mesas disponibles
+        console.log("Mesas dispoñibles totais:", mesasDisponibles);
+        console.log('Mesas disponibles para el número de comensais:', mesasDisponiblesParaComensales);
+
+        // Agregar este console.log para verificar las mesas disponibles
+        setModalVisible(true); // Muestra el modal con las mesas disponibles
       } else {
-        console.log('Non hai mesas dispoñibles.');
+        console.log('No hay mesas disponibles.');
+        // Manejar el caso en que no haya mesas disponibles
       }
     } catch (error) {
-      console.error('Erro ao seleccionar a mesa:', error);
+      console.error('Error al seleccionar la mesa:', error);
+      // Manejo de errores
+    }
+    try {
+      // Crear una nueva mesa en la base de datos
+      const nuevaMesa = {
+        numero: mesaSeleccionada.numero,
+        prazas: mesaSeleccionada.plazas,
+        ocupada: true,
+        cliente: null,
+        pedido: [],
+        prezoTotal: 0,
+        pagado: false,
+        terraza: false,
+        numComensais: 0,
+        estado: "reservada"
+      }
+      const nuevaMesaCreada = await crearMesa(nuevaMesa);
+      console.log('Nueva mesa creada:', nuevaMesaCreada);
+      // Actualizar el estado de la mesa seleccionada
+      setMesaSeleccionada(nuevaMesaCreada);
+    } catch (error) {
+      console.error('Error al seleccionar la mesa:', error);
     }
   };
 
@@ -188,80 +262,91 @@ export default function Menu() {
     setTotalGastado(0);
     setMesaSeleccionada(null);
     setTerraza(false);
-    setNumComensais('');
+    setNumComensales('');
     try {
+      // Eliminar la mesa seleccionada de la base de datos
       await eliminarMesa(mesaSeleccionada.id);
       console.log('Mesa eliminada:', mesaSeleccionada);
+      // Limpiar el estado de la mesa seleccionada
       setMesaSeleccionada(null);
-      setNumComensais('');
+      setNumComensales('');
+      // Otros estados a limpiar...
     } catch (error) {
-      console.error('Erro ao limpar a aplicación:', error);
+      console.error('Error al limpiar la aplicación:', error);
     }
   };
 
-  const handleNumComensaisChange = (text) => {
-    setNumComensais(text);
+  const handleNumComensalesChange = (text) => {
+    setNumComensales(text);
+    // Actualizar el número de comensales en la mesa seleccionada en la base de datos (si es necesario)
     if (mesaSeleccionada) {
-      const novosDatosMesa = { ...mesaSeleccionada, numComensais: parseInt(text) };
-      actualizarMesa(mesaSeleccionada.id, novosDatosMesa);
+      const nuevosDatosMesa = { ...mesaSeleccionada, numComensales: parseInt(text) };
+      actualizarMesa(mesaSeleccionada.id, nuevosDatosMesa);
     }
   };
-
   const handlePagar = async () => {
     try {
       if (mesaSeleccionada) {
+        // Cambiar el estado de la mesa a "pagado" y "ocupada = false" en la base de datos
         const mesaActualizada = { ...mesaSeleccionada, pagado: true, ocupada: false };
         await actualizarMesa(mesaSeleccionada.id, mesaActualizada);
-        console.log('Mesa marcada como "pagado" e "ocupada = false"');
+        console.log('Mesa marcada como "pagado" y "ocupada = false"');
       }
     } catch (error) {
-      console.error('Erro ao pagar:', error);
+      console.error('Error al pagar:', error);
     }
   };
-
   const handleConfirmarPedido = async () => {
     try {
       if (mesaSeleccionada) {
+        // Cambiar el estado de la mesa a "servido" en la base de datos
         const mesaActualizada = { ...mesaSeleccionada, estado: 'servido' };
         await actualizarMesa(mesaSeleccionada.id, mesaActualizada);
-        console.log('Estado da mesa actualizado a "servido"');
+        console.log('Estado de la mesa actualizado a "servido"');
       }
     } catch (error) {
-      console.error('Erro ao confirmar o pedido:', error);
+      console.error('Error al confirmar el pedido:', error);
     }
   };
-
-  const obterTextoBoton = () => mesaSeleccionada ? `Mesa ${mesaSeleccionada.id} - ${mesaSeleccionada.estado}` : 'Ver Dispoñibles';
-
+  const obterTextoBoton = () => {
+    return mesaSeleccionada ? `Mesa ${mesaSeleccionada.id} - ${mesaSeleccionada.estado}` : 'Ver Dispoñibles';
+  };
   const getIconByType = (type) => {
     switch (type) {
       case 'bebida':
-        return <Icon name="glass" />;
+        return <IconBebida />;
       case 'comida':
-        return <Icon name="list-alt" />;
+        return <IconComida />;
       case 'menu':
-        return <Icon name="cutlery" />;
+        return <IconMenu />;
       default:
         return null;
     }
   };
-
+  const IconComida = () => {
+    return <Icon name="list-alt" />;
+  };const IconBebida = () => {
+    return <Icon name="glass" />;
+  };const IconMenu = () => {
+    return <Icon name="cutlery" />;
+  };
   return (
     <ImageBackground>
       <View style={styles.container}>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={() => handleMenuPress('Menús')}>
-            <Icon name="cutlery" />
-            <Text style={styles.buttonText}>Menús</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => handleMenuPress('Carta')}>
-            <Icon name="list-alt" /> 
-            <Text style={styles.buttonText}>Carta</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => handleMenuPress('Bebidas')}>
-            <Icon name="glass" />
-            <Text style={styles.buttonText}>Bebidas</Text>
-          </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => handleMenuPress('Menús')}>
+  <IconMenu width={24} height={24} />
+  <Text style={styles.buttonText}>Menús</Text>
+</TouchableOpacity>
+<TouchableOpacity style={styles.button} onPress={() => handleMenuPress('Carta')}>
+  <IconComida width={24} height={24} /> 
+  <Text style={styles.buttonText}>Carta</Text>
+</TouchableOpacity>
+
+<TouchableOpacity style={styles.button} onPress={() => handleMenuPress('Bebidas')}>
+  <IconBebida width={24} height={24} />
+  <Text style={styles.buttonText}>Bebidas</Text>
+</TouchableOpacity>
         </View>
         <View flexDirection="row">
           <View style={styles.switchContainer}>
@@ -272,43 +357,49 @@ export default function Menu() {
             style={styles.textInput}
             placeholder="Número de comensais"
             keyboardType="numeric"
-            value={numComensais}
-            onChangeText={handleNumComensaisChange}
+            value={numComensales}
+            onChangeText={handleNumComensalesChange}
           />
+
         </View>
+
+
         <TouchableOpacity style={styles.button} onPress={handleSeleccionarMesa}>
           <Text style={styles.buttonText}>{obterTextoBoton()}</Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.button} onPress={handleLimparApp}>
           <Text style={styles.buttonText}>Limpar <Icon name="trash" /></Text>
         </TouchableOpacity>
         <View style={styles.pedidoContainer}>
-          <Text style={styles.pedidoTitle}>Pedido:</Text>
-          <ScrollView>
-            {pedido.map((item, index) => (
-              <View key={index} style={styles.pedidoItem}>
-                {getIconByType(item.type)}
-                <Text>{item.name}</Text>
-                <Text>${item.price}</Text>
-                <TouchableOpacity onPress={() => removeFromOrder(index)} style={styles.removeButton}>
-                  <Text><Icon name="times" /></Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-            {pedido.length > 0 && (
-              <TouchableOpacity style={styles.button} onPress={handleConfirmarPedido}>
-                <Text style={styles.buttonText}>Confirmar Pedido</Text>
-              </TouchableOpacity>
-            )}
-          </ScrollView>
-        </View>
+  <Text style={styles.pedidoTitle}>Pedido:</Text>
+  <ScrollView>
+    {pedido.map((item, index) => (
+      <View key={index} style={styles.pedidoItem}>
+        {getIconByType(item.type)}
+        <Text>{item.name}</Text>
+        <Text>${item.price}</Text>
+        <TouchableOpacity onPress={() => removeFromOrder(index)} style={styles.removeButton}>
+          <Text><Icon name="times" /></Text>
+        </TouchableOpacity>
+      </View>
+      
+    ))}
+     {pedido.length > 0 && (
+        <TouchableOpacity style={styles.button} onPress={handleConfirmarPedido}>
+          <Text style={styles.buttonText}>Confirmar Pedido</Text>
+        </TouchableOpacity>
+      )}
+  </ScrollView></View>
+
         <View style={styles.topBar}>
           <Text style={styles.gastadoText}>Gastado: ${totalGastado.toFixed(2)}</Text>
+         
           {pedido.length > 0 && (
-            <TouchableOpacity style={styles.verPedidoButton} onPress={handlePagar}>
-              <Text style={styles.buttonText}>Pagar</Text>
-            </TouchableOpacity>
-          )}
+        <TouchableOpacity style={styles.verPedidoButton} onPress={handlePagar}>
+          <Text style={styles.buttonText}>Pagar</Text>
+        </TouchableOpacity>
+      )}
         </View>
         {currentPantalla === 'Carta' && (
           <ModalCartaBebidas visible={true} onClose={() => setCurrentPantalla(null)} addToOrder={addToOrder} data={carta} title="Carta" />
@@ -327,12 +418,14 @@ export default function Menu() {
             setMesaSeleccionada(mesa);
             setModalVisible(false);
           }}
-          numComensais={parseInt(numComensais)}
+          numComensales={parseInt(numComensales)} // Pasar el número de comensales como prop
         />
+
       </View>
     </ImageBackground>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -352,7 +445,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   buttonContainer: {
-    marginTop: 20,
+    marginTop: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingBottom: 20,
@@ -361,7 +454,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
     paddingVertical: 15,
     paddingHorizontal: 30,
+    // borderRadius: 10,
+    //elevation: 1,
     marginHorizontal: 20,
+    //paddingHorizontal: '10%',
     marginVertical: 3,
     borderRadius: 10,
     borderWidth: 0.5,
