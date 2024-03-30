@@ -4,11 +4,11 @@ const { getMesas, getMesaById, createMesa, updateMesa, deleteMesa } = require('.
 const mongoose = require('mongoose');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Conexión a MongoDB
 const uri = "mongodb+srv://mvilceb:noliu111@cluster0.iqwdukh.mongodb.net/?retryWrites=true&w=majority";
-const dbName = "restaurante2";
+const dbName = "restaurante3";
 
 mongoose.connect(uri, {
   useNewUrlParser: true,
@@ -17,9 +17,8 @@ mongoose.connect(uri, {
 }).then(() => {
   console.log("Conectado a MongoDB!");
 }).catch(err => {
-  console.error("Error de conexión a MongoDB:", err);
+  console.error("Erro de conexión a MongoDB:", err);
 });
-
 
 // Middlewares
 app.use(bodyParser.json());

@@ -271,23 +271,23 @@ const handlePagar = async () => {
 //     console.error('Error al confirmar el pedido:', error);
 //   }
 // };
-// const handleLimparApp = async () => {
-//   setCurrentPantalla(null); // Reinicia la pantalla actual
-//   setPedido([]); // Reinicia el pedido
-//   setTotalGastado(0); // Reinicia el total gastado
-//   try {
-//     // Si hay una mesa seleccionada, la eliminamos
-//     if (mesaSeleccionada) {
-//       await eliminarMesa(mesaSeleccionada.id); // Elimina la mesa seleccionada
-//       console.log('Mesa eliminada:', mesaSeleccionada);
-//     }
-//     setMesaSeleccionada(null); // Reinicia la mesa seleccionada
-//     setTerraza(false); // Reinicia el estado de terraza
-//     setNumComensais(''); // Reinicia el número de comensales
-//   } catch (error) {
-//     console.error('Erro ao limpar a aplicación:', error);
-//   }
-// };
+const handleLimparApp = async () => {
+  setCurrentPantalla(null); // Reinicia la pantalla actual
+  setPedido([]); // Reinicia el pedido
+  setTotalGastado(0); // Reinicia el total gastado
+  try {
+    // Si hay una mesa seleccionada, la eliminamos
+    if (mesaSeleccionada) {
+      await eliminarMesa(mesaSeleccionada.id); // Elimina la mesa seleccionada
+      console.log('Mesa eliminada:', mesaSeleccionada);
+    }
+    setMesaSeleccionada(null); // Reinicia la mesa seleccionada
+    setTerraza(false); // Reinicia el estado de terraza
+    setNumComensais(''); // Reinicia el número de comensales
+  } catch (error) {
+    console.error('Erro ao limpar a aplicación:', error);
+  }
+};
 
 
   const handleNumComensaisChange = (text) => {
@@ -394,7 +394,7 @@ const handlePagar = async () => {
         </View>
         <View style={styles.bottomButtonsContainer}>
           <Text style={styles.gastadoText}>Gastado:{" "} {totalGastado.toFixed(2)} €</Text>
-         <TouchableOpacity style={styles.clearButton} >
+         <TouchableOpacity style={styles.clearButton} onPress={handleLimparApp}>
             <Text style={styles.clearButtonText}>Limpar</Text>
           </TouchableOpacity>
          {isPagarVisible && (

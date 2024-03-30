@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
 const mesaSchema = new mongoose.Schema({
-  id: {
+  numero: {
     type: Number,
     required: true
   },
-  capacidad: {
+  capacidade: {
     type: Number,
     required: true
   },
@@ -46,3 +46,4 @@ const mesaSchema = new mongoose.Schema({
 const Mesa = mongoose.model('Mesa', mesaSchema);
 
 module.exports = Mesa;
+

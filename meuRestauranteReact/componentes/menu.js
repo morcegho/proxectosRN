@@ -5,7 +5,7 @@ import { carta, menus, bebidas } from './ListaAlimentos';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 function ModalMesasDisponibles({ visible, onClose, mesas, onSelectMesa, numComensais }) {
-  const mesasFiltradas = mesas.filter(mesa => mesa.capacidad >= numComensais);
+  const mesasFiltradas = mesas.filter(mesa => mesa.capacidade >= numComensais);
 
   return (
     <Modal visible={visible} animationType="slide">
@@ -15,15 +15,15 @@ function ModalMesasDisponibles({ visible, onClose, mesas, onSelectMesa, numComen
           <View style={styles.gridContainer}>
             {mesasFiltradas.map((mesa, index) => (
               <TouchableOpacity
-                key={mesa.id}
+                key={mesa.numero}
                 style={[styles.gridItem, index % 2 === 1 && styles.gridItemRight]}
                 onPress={() => {
                   onSelectMesa(mesa);
                   onClose();
                 }}
               >
-                <Text style={styles.itemName}>Mesa {mesa.id}</Text>
-                <Text style={styles.itemPrice}>Capacidade: {mesa.capacidad}</Text>
+                <Text style={styles.itemName}>Mesa {mesa.numero}</Text>
+                <Text style={styles.itemPrice}>Capacidade: {mesa.capacidade}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -107,39 +107,38 @@ const isPagarVisible = mesaSeleccionada && mesaSeleccionada.estado === 'servido'
 
     obterContidoBase();
   }, []);
+
+
   const consultarMesasDisponibles = async () => {
     try {
-      const mesasLibres = await verificarDisponibilidadMesas(); // Utiliza mesasLibres en lugar de mesasDisponibles
-
-      // Devolver las mesas libres encontradas
-      console.log('Mesas disponibles:', mesasLibres);
-      return mesasLibres;
+      const mesasDisponibles = await verificarDisponibilidadMesas();
+      console.log('Mesas disponibles:', mesasDisponibles);
+      return mesasDisponibles;
     } catch (error) {
       console.error('Error al consultar las mesas disponibles:', error);
       return [];
     }
   };
-
   const verificarDisponibilidadMesas = async () => {
     try {
       // Lista de mesas buscadas
       const mesasBuscadas = [
-        { id: 1, capacidad: 2 },
-        { id: 2, capacidad: 3 },
-        { id: 3, capacidad: 5 },
-        { id: 4, capacidad: 6 },
-        { id: 5, capacidad: 3, terraza: true },
-        { id: 6, capacidad: 4, terraza: true },
-        { id: 7, capacidad: 5, terraza: true },
+        { numero: 1, capacidade: 2 },
+        { numero: 2, capacidade: 3 },
+        { numero: 3, capacidade: 5 },
+        { numero: 4, capacidade: 6 },
+        { numero: 5, capacidade: 3, terraza: true },
+        { numero: 6, capacidade: 4, terraza: true },
+        { numero: 7, capacidade: 5, terraza: true },
       ];
 
-      // Obtener todas las mesas de la base de datos
+      // Obter todas as mesas da base de datos
       const mesasDisponibles = await obterMesas();
 
-      // Verificar disponibilidade de cada mesa buscada
+      // Verificar dispoñibilidade de cada mesa buscada
       const mesasLibres = mesasBuscadas.filter(mesaBuscada => {
-        const mesaEncontrada = mesasDisponibles.find(mesa => mesa.id === mesaBuscada.id);
-        // Se no está ocupada ou non se atopa na base de datos, está dispoñible
+        const mesaEncontrada = mesasDisponibles.find(mesa => mesa.numero === mesaBuscada.numero);
+        // Se non está ocupada ou non se atopa na base de datos, está dispoñible
         return !mesaEncontrada || !mesaEncontrada.ocupada;
       });
 
@@ -173,145 +172,113 @@ const isPagarVisible = mesaSeleccionada && mesaSeleccionada.estado === 'servido'
     setTerraza(value);
   };
   
-  // const handleSeleccionarMesa = async () => {
-  //   try {
-  //     const mesasDispoñibles = await consultarMesasDisponibles();
-  //     if (mesasDispoñibles.length > 0) {
-  //       setMesasDisponibles(mesasDispoñibles);
-  //       setModalVisible(true);
-  //     } else {
-  //       console.log('Non hai mesas dispoñibles.');
-  //     }
-  //   } catch (error) {
-  //     console.error('Erro ao seleccionar a mesa:', error);
-  //   }
-  // };
+ 
 const handleCrearMesa = async () => {
   try {
-    const nuevaMesa = await crearMesa({
-      id: mesaSeleccionada ? mesaSeleccionada.id : null, // Si ya hay una mesa seleccionada, se usa su ID
-      capacidad: parseInt(numComensais),
+    const novaMesa = await crearMesa({
+      numero: mesaSeleccionada.numero,
+      capacidade: parseInt(numComensais),
       terraza: terraza,
-      ocupada: mesaSeleccionada ? mesaSeleccionada.ocupada : true, // Si ya hay una mesa seleccionada, se mantiene su estado de ocupación
+      pedido: pedido,
+      prezoTotal: totalGastado,
+      ocupada: mesaSeleccionada ? mesaSeleccionada.ocupada : true, // Se hai una mesa seleccionada, mantén estado de ocupación
       pagado: false,
-      estado: 'reservada', // Se establece el estado como "reservada" al crear una nueva mesa
+      estado: 'reservada', // Establece estado como "reservada" 
     });
-    setMesaSeleccionada(nuevaMesa);
+    setMesaSeleccionada(novaMesa);
   } catch (error) {
     console.error('Error al crear la mesa:', error);
   }
 };
 
+
 const handleSeleccionarMesa = async () => {
   try {
-    if (!mesaSeleccionada) {
-      const mesasDisponibles = await consultarMesasDisponibles();
-      if (mesasDisponibles.length > 0) {
-        setMesasDisponibles(mesasDisponibles);
-        setModalVisible(true);
-      } else {
-        console.log('No hay mesas disponibles.');
-      }
+    const mesasDisponibles = await consultarMesasDisponibles();
+    if (mesasDisponibles.length > 0) {
+      setMesasDisponibles(mesasDisponibles); // Actualiza estado coas mesas dispoñibles
+      setModalVisible(true);
     } else {
-      const mesasDisponibles = await consultarMesasDisponibles();
-      if (mesasDisponibles.length > 0) {
-        setMesasDisponibles(mesasDisponibles);
-        setModalVisible(true);
-        // No se restablecen los valores de la mesa seleccionada si ya está creada
-      } else {
-        console.log('No hay mesas disponibles.');
-      }
+      console.log('Non hai mesas dispoñibles.');
     }
   } catch (error) {
-    console.error('Error al seleccionar la mesa:', error);
+    console.error('Erro ao seleccionar a mesa:', error);
   }
 };
+
 
 const handleConfirmarPedido = async () => {
   try {
     if (mesaSeleccionada) {
       const mesaActualizada = { ...mesaSeleccionada, estado: 'servido' };
-      await actualizarMesa(mesaSeleccionada.id, mesaActualizada);
-      console.log('Estado de la mesa actualizado a "servido"');
+      await actualizarMesa(mesaSeleccionada._id, mesaActualizada);
+      console.log('Estado da mesa actualizado a "servido"');
+      console.log('Mesa id: '+mesaSeleccionada._id);
+
+      // Actualiza o texto del botón después de despois de confirmar pedido
+      const textoBoton = obterTextoBoton();
+      console.log(textoBoton);
+      setMesaSeleccionada(mesaActualizada);
+      console.log(mesaActualizada); 
+
     } else {
-      alert('Debe seleccionar una mesa antes de confirmar el pedido');
+      alert('Debe seleccionar unha mesa antes de confirmar o pedido');
     }
   } catch (error) {
-    console.error('Error al confirmar el pedido:', error);
+    console.error('Erro ao confirmar o pedido:', error);
   }
 };
 
 const handlePagar = async () => {
   try {
     if (mesaSeleccionada) {
-      const mesaActualizada = { ...mesaSeleccionada, pagado: true, ocupada: false, estado: 'libre' };
-      await actualizarMesa(mesaSeleccionada.id, mesaActualizada);
-      console.log('Mesa marcada como "pagada" y "libre" con ocupada = false');
+      const mesaActualizada = { ...mesaSeleccionada, pagado: true, prezoTotal: totalGastado, pedido: pedido, ocupada: false, estado: 'libre' };
+      await actualizarMesa(mesaSeleccionada._id, mesaActualizada);
+      console.log('Mesa marcada como "pagada" e "libre" con ocupada = false');
+      // Actualiza texto do botón
+      setMesaSeleccionada(mesaActualizada);
+
+      const textoBoton = obterTextoBoton();
+      console.log(textoBoton); 
     } else {
-      alert('Debe seleccionar una mesa antes de pagar');
+      alert('Debe seleccionar unha mesa antes de pagar');
     }
   } catch (error) {
-    console.error('Error al pagar:', error);
+    console.error('Erro ao pagar:', error);
   }
 };
 
-
-// const handleConfirmarPedido = async () => {
-//   try {
-//     if (!mesaSeleccionada) {
-//       // Mostrar una alerta si no hay una mesa seleccionada
-//       alert('Debe seleccionar una mesa antes de confirmar el pedido');
-//       return;
-//     }
-
-//     const mesaActualizada = { ...mesaSeleccionada, estado: 'servido' };
-//     await actualizarMesa(mesaSeleccionada.id, mesaActualizada);
-//     console.log('Estado de la mesa actualizado a "servido"');
-//   } catch (error) {
-//     console.error('Error al confirmar el pedido:', error);
-//   }
-// };
-// const handleLimparApp = async () => {
-//   setCurrentPantalla(null); // Reinicia la pantalla actual
-//   setPedido([]); // Reinicia el pedido
-//   setTotalGastado(0); // Reinicia el total gastado
-//   try {
-//     // Si hay una mesa seleccionada, la eliminamos
-//     if (mesaSeleccionada) {
-//       await eliminarMesa(mesaSeleccionada.id); // Elimina la mesa seleccionada
-//       console.log('Mesa eliminada:', mesaSeleccionada);
-//     }
-//     setMesaSeleccionada(null); // Reinicia la mesa seleccionada
-//     setTerraza(false); // Reinicia el estado de terraza
-//     setNumComensais(''); // Reinicia el número de comensales
-//   } catch (error) {
-//     console.error('Erro ao limpar a aplicación:', error);
-//   }
-// };
+const handleLimparApp = async () => {
+  setCurrentPantalla(null); // Reinicia a pantalla actual
+  setPedido([]); // Reinicia o pedido
+  setTotalGastado(0); // Reinicia o total gastado
+  try {
+    // Se hai unha mesa seleccionada, elimina
+    if (mesaSeleccionada) {
+      await eliminarMesa(mesaSeleccionada._id); // Elimina a mesa seleccionada
+      console.log('Mesa eliminada:', mesaSeleccionada);
+    }
+    setMesaSeleccionada(null); // Reinicia a mesa seleccionada
+    setTerraza(false); // Reinicia o estado de terraza
+    setNumComensais(''); // Reinicia o número de comensais
+  } catch (error) {
+    console.error('Erro ao limpar a aplicación:', error);
+  }
+};
 
 
   const handleNumComensaisChange = (text) => {
     setNumComensais(text);
     if (mesaSeleccionada) {
       const novosDatosMesa = { ...mesaSeleccionada, numComensais: parseInt(text) };
-      actualizarMesa(mesaSeleccionada.id, novosDatosMesa);
+      actualizarMesa(mesaSeleccionada._id, novosDatosMesa);
     }
   };
 
-  // const handlePagar = async () => {
-  //   try {
-  //     if (mesaSeleccionada) {
-  //       const mesaActualizada = { ...mesaSeleccionada, pagado: true, ocupada: false };
-  //       await actualizarMesa(mesaSeleccionada.id, mesaActualizada);
-  //       console.log('Mesa marcada como "pagado" e "ocupada = false"');
-  //     }
-  //   } catch (error) {
-  //     console.error('Erro ao pagar:', error);
-  //   }
-  // };
 
 
-  const obterTextoBoton = () => mesaSeleccionada ? `Mesa ${mesaSeleccionada.id} - ${mesaSeleccionada.estado}` : 'Ver Dispoñibles';
+
+  const obterTextoBoton = () => mesaSeleccionada ? `Mesa ${mesaSeleccionada.numero} - ${mesaSeleccionada.estado}` : 'Ver Dispoñibles';
 
   const getIconByType = (type) => {
     switch (type) {
@@ -394,7 +361,7 @@ const handlePagar = async () => {
         </View>
         <View style={styles.bottomButtonsContainer}>
           <Text style={styles.gastadoText}>Gastado:{" "} {totalGastado.toFixed(2)} €</Text>
-         <TouchableOpacity style={styles.clearButton} >
+         <TouchableOpacity style={styles.clearButton} onPress={handleLimparApp}>
             <Text style={styles.clearButtonText}>Limpar</Text>
           </TouchableOpacity>
          {isPagarVisible && (
@@ -415,16 +382,18 @@ const handlePagar = async () => {
         {currentPantalla === 'Menús' && (
           <ModalCartaBebidas visible={true} onClose={() => setCurrentPantalla(null)} addToOrder={addToOrder} data={menus} title="Menús" />
         )}
+     
         <ModalMesasDisponibles
-          visible={modalVisible}
-          onClose={() => setModalVisible(false)}
-          mesas={mesasDisponibles}
-          onSelectMesa={(mesa) => {
-            setMesaSeleccionada(mesa);
-            setModalVisible(false);
-          }}
-          numComensais={parseInt(numComensais)}
-        />
+  visible={modalVisible}
+  onClose={() => setModalVisible(false)}
+  mesas={mesasDisponibles}
+  onSelectMesa={(mesa) => {
+    setMesaSeleccionada(mesa); // Asigna a mesa seleccionada ao estado
+    setModalVisible(false);
+  }}
+  numComensais={parseInt(numComensais)}
+/>
+
       </View>
     </ImageBackground>
   );
@@ -436,7 +405,7 @@ const styles = StyleSheet.create({
     paddingTop: StatusBar.currentHeight,
   },
    horizontalMargin: {
-    marginHorizontal: 10, // Margen horizontal de 10
+    marginHorizontal: 10,
   },
   topBarButtons: {
     flexDirection: 'row',
@@ -462,7 +431,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 20,
-   // backgroundColor: '#f0f0f0',
   },
   bottomBarButton: {
     flexDirection: 'row',
@@ -489,7 +457,6 @@ const styles = StyleSheet.create({
   bottomButton: {
     backgroundColor: 'lightgreen',
     borderRadius: 10,
-      //backgroundColor: "white",
     paddingVertical: 15,
     paddingHorizontal: 30,
 elevation: 5,
@@ -523,7 +490,6 @@ elevation: 5,
   confirmButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
-   // color: 'green',
     marginRight: 5,
   },
 
