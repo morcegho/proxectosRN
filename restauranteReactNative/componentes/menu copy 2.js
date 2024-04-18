@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, StyleSheet, Text, Modal, ScrollView, Switch, TextInput, ImageBackground } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Text, Modal, ScrollView, Switch, TextInput, ImageBackground, StatusBar } from 'react-native';
 import { obterMesas, crearMesa, actualizarMesa, eliminarMesa } from './DatabaseConnect';
 import { carta, menus, bebidas } from './ListaAlimentos';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -50,33 +50,36 @@ function ModalCartaBebidas({ visible, onClose, addToOrder, data, title }) {
   };
 
   return (
-    <Modal visible={visible} animationType="slide">
-      <View style={styles.modalContainer}>
-        <Text style={styles.modalTitle}>{title}</Text>
-        <ScrollView>
-          <View style={styles.gridContainer}>
-            {data.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={[styles.gridItem, selectedItems.includes(item) && styles.selectedItem]}
-                onPress={() => handleItemPress(item)}
-              >
-                <Text style={styles.itemName}>{item.name}</Text>
-                <Text style={styles.itemPrice}>${item.price}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </ScrollView>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity onPress={handleConfirm} style={styles.confirmButton}>
-            <Text style={styles.buttonText}>Confirmar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={onClose} style={styles.cancelButton}>
-            <Text style={styles.buttonText}>Cancelar</Text>
-          </TouchableOpacity>
+  <Modal visible={visible} animationType="slide">
+<View style={[styles.modalContainer, styles.centeredModal]}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>{title}</Text>
+      <ScrollView>
+        <View style={styles.gridContainer}>
+          {data.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={[styles.gridItem, selectedItems.includes(item) && styles.selectedItem]}
+              onPress={() => handleItemPress(item)}
+            >
+              <Text style={styles.itemName}>{item.name}</Text>
+              <Text style={styles.itemPrice}>{item.price} €</Text>
+            </TouchableOpacity>
+          ))}
         </View>
+      </ScrollView>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity onPress={handleConfirm} style={styles.confirmButton}>
+          <Text style={styles.buttonText}>Confirmar <Icon name="check" size={20} color="green"/></Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onClose} style={styles.cancelButton}>
+          <Text style={styles.buttonText}>Cancelar <Icon name="times" size={20} color="red" /></Text>
+        </TouchableOpacity>
       </View>
-    </Modal>
+    </View>
+  </View>
+</Modal>
+
   );
 }
 
@@ -89,6 +92,8 @@ export default function Menu() {
   const [terraza, setTerraza] = useState(false);
   const [numComensais, setNumComensais] = useState('');
   const [mesasDisponibles, setMesasDisponibles] = useState([]);
+  const isCrearDisabled = !terraza || isNaN(parseInt(numComensais)) || parseInt(numComensais) <= 0 || !mesaSeleccionada;
+const isPagarVisible = mesaSeleccionada && mesaSeleccionada.estado === 'servido';
 
   useEffect(() => {
     async function obterContidoBase() {
@@ -167,37 +172,123 @@ export default function Menu() {
   const handleTerrazaChange = (value) => {
     setTerraza(value);
   };
+  
+  // const handleSeleccionarMesa = async () => {
+  //   try {
+  //     const mesasDispoñibles = await consultarMesasDisponibles();
+  //     if (mesasDispoñibles.length > 0) {
+  //       setMesasDisponibles(mesasDispoñibles);
+  //       setModalVisible(true);
+  //     } else {
+  //       console.log('Non hai mesas dispoñibles.');
+  //     }
+  //   } catch (error) {
+  //     console.error('Erro ao seleccionar a mesa:', error);
+  //   }
+  // };
+const handleCrearMesa = async () => {
+  try {
+    const nuevaMesa = await crearMesa({
+      id: mesaSeleccionada ? mesaSeleccionada.id : null, // Si ya hay una mesa seleccionada, se usa su ID
+      capacidad: parseInt(numComensais),
+      terraza: terraza,
+      ocupada: mesaSeleccionada ? mesaSeleccionada.ocupada : true, // Si ya hay una mesa seleccionada, se mantiene su estado de ocupación
+      pagado: false,
+      estado: 'reservada', // Se establece el estado como "reservada" al crear una nueva mesa
+    });
+    setMesaSeleccionada(nuevaMesa);
+  } catch (error) {
+    console.error('Error al crear la mesa:', error);
+  }
+};
 
-  const handleSeleccionarMesa = async () => {
-    try {
-      const mesasDispoñibles = await consultarMesasDisponibles();
-      if (mesasDispoñibles.length > 0) {
-        setMesasDisponibles(mesasDispoñibles);
+const handleSeleccionarMesa = async () => {
+  try {
+    if (!mesaSeleccionada) {
+      const mesasDisponibles = await consultarMesasDisponibles();
+      if (mesasDisponibles.length > 0) {
+        setMesasDisponibles(mesasDisponibles);
         setModalVisible(true);
       } else {
-        console.log('Non hai mesas dispoñibles.');
+        console.log('No hay mesas disponibles.');
       }
-    } catch (error) {
-      console.error('Erro ao seleccionar a mesa:', error);
+    } else {
+      const mesasDisponibles = await consultarMesasDisponibles();
+      if (mesasDisponibles.length > 0) {
+        setMesasDisponibles(mesasDisponibles);
+        setModalVisible(true);
+        // No se restablecen los valores de la mesa seleccionada si ya está creada
+      } else {
+        console.log('No hay mesas disponibles.');
+      }
     }
-  };
+  } catch (error) {
+    console.error('Error al seleccionar la mesa:', error);
+  }
+};
 
-  const handleLimparApp = async () => {
-    setCurrentPantalla(null);
-    setPedido([]);
-    setTotalGastado(0);
-    setMesaSeleccionada(null);
-    setTerraza(false);
-    setNumComensais('');
-    try {
-      await eliminarMesa(mesaSeleccionada.id);
-      console.log('Mesa eliminada:', mesaSeleccionada);
-      setMesaSeleccionada(null);
-      setNumComensais('');
-    } catch (error) {
-      console.error('Erro ao limpar a aplicación:', error);
+const handleConfirmarPedido = async () => {
+  try {
+    if (mesaSeleccionada) {
+      const mesaActualizada = { ...mesaSeleccionada, estado: 'servido' };
+      await actualizarMesa(mesaSeleccionada.id, mesaActualizada);
+      console.log('Estado de la mesa actualizado a "servido"');
+    } else {
+      alert('Debe seleccionar una mesa antes de confirmar el pedido');
     }
-  };
+  } catch (error) {
+    console.error('Error al confirmar el pedido:', error);
+  }
+};
+
+const handlePagar = async () => {
+  try {
+    if (mesaSeleccionada) {
+      const mesaActualizada = { ...mesaSeleccionada, pagado: true, ocupada: false, estado: 'libre' };
+      await actualizarMesa(mesaSeleccionada.id, mesaActualizada);
+      console.log('Mesa marcada como "pagada" y "libre" con ocupada = false');
+    } else {
+      alert('Debe seleccionar una mesa antes de pagar');
+    }
+  } catch (error) {
+    console.error('Error al pagar:', error);
+  }
+};
+
+
+// const handleConfirmarPedido = async () => {
+//   try {
+//     if (!mesaSeleccionada) {
+//       // Mostrar una alerta si no hay una mesa seleccionada
+//       alert('Debe seleccionar una mesa antes de confirmar el pedido');
+//       return;
+//     }
+
+//     const mesaActualizada = { ...mesaSeleccionada, estado: 'servido' };
+//     await actualizarMesa(mesaSeleccionada.id, mesaActualizada);
+//     console.log('Estado de la mesa actualizado a "servido"');
+//   } catch (error) {
+//     console.error('Error al confirmar el pedido:', error);
+//   }
+// };
+// const handleLimparApp = async () => {
+//   setCurrentPantalla(null); // Reinicia la pantalla actual
+//   setPedido([]); // Reinicia el pedido
+//   setTotalGastado(0); // Reinicia el total gastado
+//   try {
+//     // Si hay una mesa seleccionada, la eliminamos
+//     if (mesaSeleccionada) {
+//       await eliminarMesa(mesaSeleccionada.id); // Elimina la mesa seleccionada
+//       console.log('Mesa eliminada:', mesaSeleccionada);
+//     }
+//     setMesaSeleccionada(null); // Reinicia la mesa seleccionada
+//     setTerraza(false); // Reinicia el estado de terraza
+//     setNumComensais(''); // Reinicia el número de comensales
+//   } catch (error) {
+//     console.error('Erro ao limpar a aplicación:', error);
+//   }
+// };
+
 
   const handleNumComensaisChange = (text) => {
     setNumComensais(text);
@@ -207,29 +298,18 @@ export default function Menu() {
     }
   };
 
-  const handlePagar = async () => {
-    try {
-      if (mesaSeleccionada) {
-        const mesaActualizada = { ...mesaSeleccionada, pagado: true, ocupada: false };
-        await actualizarMesa(mesaSeleccionada.id, mesaActualizada);
-        console.log('Mesa marcada como "pagado" e "ocupada = false"');
-      }
-    } catch (error) {
-      console.error('Erro ao pagar:', error);
-    }
-  };
+  // const handlePagar = async () => {
+  //   try {
+  //     if (mesaSeleccionada) {
+  //       const mesaActualizada = { ...mesaSeleccionada, pagado: true, ocupada: false };
+  //       await actualizarMesa(mesaSeleccionada.id, mesaActualizada);
+  //       console.log('Mesa marcada como "pagado" e "ocupada = false"');
+  //     }
+  //   } catch (error) {
+  //     console.error('Erro ao pagar:', error);
+  //   }
+  // };
 
-  const handleConfirmarPedido = async () => {
-    try {
-      if (mesaSeleccionada) {
-        const mesaActualizada = { ...mesaSeleccionada, estado: 'servido' };
-        await actualizarMesa(mesaSeleccionada.id, mesaActualizada);
-        console.log('Estado da mesa actualizado a "servido"');
-      }
-    } catch (error) {
-      console.error('Erro ao confirmar o pedido:', error);
-    }
-  };
 
   const obterTextoBoton = () => mesaSeleccionada ? `Mesa ${mesaSeleccionada.id} - ${mesaSeleccionada.estado}` : 'Ver Dispoñibles';
 
@@ -249,66 +329,82 @@ export default function Menu() {
   return (
     <ImageBackground>
       <View style={styles.container}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={() => handleMenuPress('Menús')}>
-            <Icon name="cutlery" />
-            <Text style={styles.buttonText}>Menús</Text>
+        <View style={styles.topBarButtons}>
+          <TouchableOpacity style={styles.topBarButton} onPress={() => handleMenuPress('Menús')}>
+            <Icon name="cutlery" size={20} color="#fff" />
+            <Text style={styles.topBarButtonText}>Menús</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => handleMenuPress('Carta')}>
-            <Icon name="list-alt" /> 
-            <Text style={styles.buttonText}>Carta</Text>
+          <TouchableOpacity style={styles.topBarButton} onPress={() => handleMenuPress('Carta')}>
+            <Icon name="list-alt" size={20} color="#fff" /> 
+            <Text style={styles.topBarButtonText}>Carta</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => handleMenuPress('Bebidas')}>
-            <Icon name="glass" />
-            <Text style={styles.buttonText}>Bebidas</Text>
+          <TouchableOpacity style={styles.topBarButton} onPress={() => handleMenuPress('Bebidas')}>
+            <Icon name="glass" size={20} color="#fff" />
+            <Text style={styles.topBarButtonText}>Bebidas</Text>
           </TouchableOpacity>
         </View>
-        <View flexDirection="row">
-          <View style={styles.switchContainer}>
-            <Text style={styles.switchText}>Terraza:</Text>
+        
+       <View style={[styles.bottomBarButtons, styles.horizontalMargin]}>
+          <TouchableOpacity style={styles.bottomBarButtonTerraza} onPress={handleTerrazaChange}>
+            <Text style={styles.bottomBarButtonText}>Terraza</Text>
             <Switch value={terraza} onValueChange={handleTerrazaChange} />
-          </View>
+          </TouchableOpacity>
           <TextInput
-            style={styles.textInput}
-            placeholder="Número de comensais"
+            style={styles.numComensaisInput}
+            placeholder="Nº Comensais"
             keyboardType="numeric"
             value={numComensais}
             onChangeText={handleNumComensaisChange}
           />
+         <TouchableOpacity
+          style={[styles.bottomBarButton, { opacity: isCrearDisabled ? 0.5 : 1 }]}
+          onPress={handleCrearMesa}
+          disabled={isCrearDisabled}
+        >
+          <Text style={styles.bottomBarButtonText}> Crear </Text>
+          </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.button} onPress={handleSeleccionarMesa}>
           <Text style={styles.buttonText}>{obterTextoBoton()}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleLimparApp}>
-          <Text style={styles.buttonText}>Limpar <Icon name="trash" /></Text>
-        </TouchableOpacity>
-        <View style={styles.pedidoContainer}>
+             <View style={styles.pedidoContainer}>
           <Text style={styles.pedidoTitle}>Pedido:</Text>
           <ScrollView>
             {pedido.map((item, index) => (
               <View key={index} style={styles.pedidoItem}>
                 {getIconByType(item.type)}
                 <Text>{item.name}</Text>
-                <Text>${item.price}</Text>
+                <Text>{item.price} €</Text>
                 <TouchableOpacity onPress={() => removeFromOrder(index)} style={styles.removeButton}>
-                  <Text><Icon name="times" /></Text>
+                  <Text><Icon name="times" size={25} color="red" /></Text>
                 </TouchableOpacity>
               </View>
             ))}
-            {pedido.length > 0 && (
-              <TouchableOpacity style={styles.button} onPress={handleConfirmarPedido}>
-                <Text style={styles.buttonText}>Confirmar Pedido</Text>
-              </TouchableOpacity>
-            )}
+          {pedido.length > 0 && (
+          <TouchableOpacity
+            style={styles.confirmButtonVer}
+            onPress={handleConfirmarPedido}
+            disabled={pedido.length === 0}
+          >
+            <Text style={styles.confirmButtonText}>Confirmar Pedido</Text>
+            <Icon name="check" size={20} color="green" style={{ marginLeft: 5 }} />
+          </TouchableOpacity>
+        )}
           </ScrollView>
         </View>
-        <View style={styles.topBar}>
-          <Text style={styles.gastadoText}>Gastado: ${totalGastado.toFixed(2)}</Text>
-          {pedido.length > 0 && (
-            <TouchableOpacity style={styles.verPedidoButton} onPress={handlePagar}>
-              <Text style={styles.buttonText}>Pagar</Text>
-            </TouchableOpacity>
-          )}
+        <View style={styles.bottomButtonsContainer}>
+          <Text style={styles.gastadoText}>Gastado:{" "} {totalGastado.toFixed(2)} €</Text>
+         <TouchableOpacity style={styles.clearButton} onPress={handleLimparApp}>
+            <Text style={styles.clearButtonText}>Limpar</Text>
+          </TouchableOpacity>
+         {isPagarVisible && (
+          <TouchableOpacity
+            style={styles.bottomButton}
+            onPress={handlePagar}
+          >
+            <Text style={styles.bottomButtonText}>Pagar</Text>
+          </TouchableOpacity>
+        )}
         </View>
         {currentPantalla === 'Carta' && (
           <ModalCartaBebidas visible={true} onClose={() => setCurrentPantalla(null)} addToOrder={addToOrder} data={carta} title="Carta" />
@@ -335,17 +431,121 @@ export default function Menu() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'flex-end',
+    paddingTop: StatusBar.currentHeight,
   },
-  topBar: {
+   horizontalMargin: {
+    marginHorizontal: 10, // Margen horizontal de 10
+  },
+  topBarButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    backgroundColor: '#007bff', 
+    paddingTop: 10,
+    paddingBottom: 10,
+    width: "100%",
+  },
+  topBarButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+  },
+  topBarButtonText: {
+    color: '#fff',
+    marginLeft: 5,
+  },
+  bottomBarButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+   // backgroundColor: '#f0f0f0',
+  },
+  bottomBarButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    elevation: 1,
+    borderRadius: 10,
+    backgroundColor: "white"
+  },
+   bottomBarButtonTerraza: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: "white"
+  },
+  bottomBarButtonText: {
+    marginRight: 5,
+  },
+   bottomButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingBottom: 20,
+  },
+  bottomButton: {
+    backgroundColor: 'lightgreen',
+    borderRadius: 10,
+      //backgroundColor: "white",
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+elevation: 5,
+  },
+  bottomButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+ confirmButton: {
+     backgroundColor: "white",
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+elevation: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 10,
+    marginLeft: 10,
+  },
+  confirmButtonVer: {
+    backgroundColor: "white",
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+elevation: 5,
+    borderRadius: 10,
+    alignItems: 'right',
+    flexDirection: 'row',
+
+  },
+  confirmButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+   // color: 'green',
+    marginRight: 5,
+  },
+
+  numComensaisInput: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginLeft: 10,
+  },
+    clearButton: {
+    paddingHorizontal: 20,
+  },
+  clearButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+      backgroundColor: "white",
+      borderRadius: 10,
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+elevation: 5,
   },
   gastadoText: {
     fontSize: 18,
@@ -358,25 +558,17 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   button: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+borderRadius: 10,
+    backgroundColor: "white",
     paddingVertical: 15,
     paddingHorizontal: 30,
+elevation: 5,
     marginHorizontal: 20,
     marginVertical: 3,
-    borderRadius: 10,
-    borderWidth: 0.5,
     borderColor: 'black',
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
     textAlign: 'center',
-    marginHorizontal: 25,
   },
-  verPedidoButton: {
-    padding: 10,
-    backgroundColor: 'lightblue',
-    borderRadius: 5,
-    width: 150,
-    alignItems: 'center',
-  },
+
   buttonText: {
     color: '#000',
     fontSize: 18,
@@ -387,6 +579,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: 20,
+  },
+    centeredModal: {
+    justifyContent: 'center',
   },
   modalTitle: {
     fontSize: 20,
@@ -424,17 +619,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginTop: 20,
   },
-  confirmButton: {
-    backgroundColor: 'lightgreen',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 10,
-  },
+ 
   cancelButton: {
-    backgroundColor: 'salmon',
+       elevation: 5,
+    borderRadius: 10,
+//    borderWidth: 1,
+    backgroundColor: "white",
     paddingVertical: 15,
     paddingHorizontal: 30,
-    borderRadius: 10,
   },
   pedidoContainer: {
     flex: 1,
@@ -456,23 +648,9 @@ const styles = StyleSheet.create({
     borderBottomColor: '#DDDDDD',
   },
   removeButton: {
-    backgroundColor: 'red',
     padding: 5,
-    borderRadius: 5,
-  },
-  switchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  switchText: {
-    fontSize: 18,
-    marginRight: 10,
-  },
-  textInput: {
-    backgroundColor: '#DDDDDD',
-    padding: 10,
-    margin: 10,
-    borderRadius: 10,
+    borderRadius: 25,
+    elevation: 2,
+    backgroundColor: "white",
   },
 });
