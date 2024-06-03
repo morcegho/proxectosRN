@@ -2,7 +2,7 @@
 // Se non existe no servidor ningún oxecto con ese número de mesa significa que está dispoñible. Finalmente, se todos os obxectos co número buscado no servidor teñen en "false" a propiedade "ocupada" significa que esa mesa finalizou todos os servezos e volve estar dispoñible.
 
 import React, { useState, useEffect } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet, Text, Modal, ScrollView, Switch, TextInput, ImageBackground, StatusBar } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Text, Modal, ScrollView, Switch, TextInput, ImageBackground, StatusBar } from 'react-native';
 import { obterMesas, crearMesa, actualizarMesa, eliminarMesa } from './DatabaseConnect';
 import { carta, menus, bebidas } from './ListaAlimentos';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -65,77 +65,18 @@ function ModalMesasDisponibles({ visible, onClose, mesas, onSelectMesa, numComen
             ))}
           </View>
         </ScrollView>
-        <TouchableOpacity onPress={onClose} style={[styles.cancelButton, {width:'50%', left: '20%'}]}>
+        <TouchableOpacity onPress={onClose} style={styles.cancelButton}>
           <Text style={styles.buttonText}>Cancelar</Text>
         </TouchableOpacity>
       </View>
     </Modal>
   );
 }
-
-// function ModalCartaBebidas({ visible, onClose, engadeAorde, data, title }) {
-//   const [selectedItems, setSelectedItems] = useState([]);
-
-//   const handleItemPress = (item) => {
-//     const updatedItems = selectedItems.includes(item) 
-//       ? selectedItems.filter(selectedItem => selectedItem !== item)
-//       : [...selectedItems, item];
-//     setSelectedItems(updatedItems);
-//   };
-
-//   const handleConfirm = () => {
-//     engadeAorde(selectedItems);
-//     onClose();
-//   };
-
-//   return (
-//     <Modal visible={visible} animationType="slide">
-//       <View style={[styles.modalContainer, styles.centeredModal]}>
-//         <View style={styles.modalContent}>
-//           <Text style={styles.modalTitle}>{title}</Text>
-//           <ScrollView>
-//             <View style={styles.gridContainer}>
-//               {data.map((item) => (
-//                 <TouchableOpacity
-//                   key={item.id}
-//                   style={[styles.gridItem, selectedItems.includes(item) && styles.selectedItem]}
-//                   onPress={() => handleItemPress(item)}
-//                 >
-                 
-//                {item.image && (
-//                     <ImageBackground
-//                       source={item.image}
-//                       style={styles.itemImageBackground}
-//                       imageStyle={styles.imageStyle}
-//                     >
-//                       <Text style={styles.itemName}>{item.name}</Text>
-//                       <Text style={styles.itemPrice}>{item.price} €</Text>
-//                     </ImageBackground>
-//                   )}
-//                   </TouchableOpacity>))}
-//             </View>
-//           </ScrollView>
-//           <View style={styles.buttonContainer}>
-//             <TouchableOpacity onPress={handleConfirm} style={styles.confirmButton}>
-//               <Text style={styles.buttonText}>Confirmar <Icon name="check" size={20} color="green" /></Text>
-//             </TouchableOpacity>
-//             <TouchableOpacity onPress={onClose} style={styles.cancelButton}>
-//               <Text style={styles.buttonText}>Cancelar <Icon name="times" size={20} color="red" /></Text>
-//             </TouchableOpacity>
-//           </View>
-//         </View>
-//       </View>
-//     </Modal>
-//   );
-// }
-
 function ModalCartaBebidas({ visible, onClose, engadeAorde, data, title }) {
   const [selectedItems, setSelectedItems] = useState([]);
 
   const handleItemPress = (item) => {
-    const updatedItems = selectedItems.includes(item)
-      ? selectedItems.filter(selectedItem => selectedItem !== item)
-      : [...selectedItems, item];
+    const updatedItems = selectedItems.includes(item) ? selectedItems.filter(selectedItem => selectedItem !== item) : [...selectedItems, item];
     setSelectedItems(updatedItems);
   };
 
@@ -149,7 +90,7 @@ function ModalCartaBebidas({ visible, onClose, engadeAorde, data, title }) {
       <View style={[styles.modalContainer, styles.centeredModal]}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>{title}</Text>
-          <ScrollView height="80%">
+          <ScrollView>
             <View style={styles.gridContainer}>
               {data.map((item) => (
                 <TouchableOpacity
@@ -157,18 +98,8 @@ function ModalCartaBebidas({ visible, onClose, engadeAorde, data, title }) {
                   style={[styles.gridItem, selectedItems.includes(item) && styles.selectedItem]}
                   onPress={() => handleItemPress(item)}
                 >
-                  {item.image && (
-                    <ImageBackground
-                      source={item.image}
-                      style={styles.itemImageBackground}
-                      imageStyle={styles.imageStyle}
-                    >
-                      <View style={styles.textContainer}>
-                        <Text style={styles.itemName}>{item.name}</Text>
-                        <Text style={styles.itemPrice}>{item.price} €</Text>
-                      </View>
-                    </ImageBackground>
-                  )}
+                  <Text style={styles.itemName}>{item.name}</Text>
+                  <Text style={styles.itemPrice}>{item.price} €</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -178,12 +109,13 @@ function ModalCartaBebidas({ visible, onClose, engadeAorde, data, title }) {
               <Text style={styles.buttonText}>Confirmar <Icon name="check" size={20} color="green" /></Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={onClose} style={styles.cancelButton}>
-              <Text style={styles.buttonText}>Cancelar <Icon name="times" size={20} color="white" /></Text>
+              <Text style={styles.buttonText}>Cancelar <Icon name="times" size={20} color="red" /></Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
     </Modal>
+
   );
 }
 
@@ -447,7 +379,7 @@ export default function Menu() {
           </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.button} onPress={handleSeleccionarMesa}>
-          <Text style={[styles.buttonText,{color: 'black', textAlign: 'center'}]}>{obterTextoBoton()}</Text>
+          <Text style={styles.buttonText}>{obterTextoBoton()}</Text>
         </TouchableOpacity>
         <View style={styles.pedidoContainer}>
           <Text style={styles.pedidoTitle}>Pedido:</Text>
@@ -475,7 +407,7 @@ export default function Menu() {
           </ScrollView>
         </View>
         <View style={styles.bottomButtonsContainer}>
-          <Text style={styles.gastadoText}>Gasto:{" "} {totalGastado.toFixed(2)} €</Text>
+          <Text style={styles.gastadoText}>Gastado:{" "} {totalGastado.toFixed(2)} €</Text>
           <TouchableOpacity style={styles.clearButton} onPress={handleLimparApp}>
             <Text style={styles.clearButtonText}>Limpar</Text>
           </TouchableOpacity>
@@ -569,9 +501,9 @@ const styles = StyleSheet.create({
   },
   bottomButtonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: '5%',
+    paddingHorizontal: 20,
     paddingBottom: 20,
     marginHorizontal: 5,
     maxWidth: '90%'
@@ -579,8 +511,8 @@ const styles = StyleSheet.create({
   bottomButton: {
     backgroundColor: 'lightgreen',
     borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 5,
+    paddingVertical: 15,
+    paddingHorizontal: 10,
     elevation: 5,
   },
   bottomButtonText: {
@@ -679,11 +611,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   gridItem: {
-    // backgroundColor: '#DDDDDD',
-        backgroundColor: 'rgba(0, 0, 0, 0.1)',
-
+    backgroundColor: '#DDDDDD',
     padding: 10,
-    // borderWidth:1,
     margin: 10,
     borderRadius: 10,
     alignItems: 'center',
@@ -707,22 +636,12 @@ const styles = StyleSheet.create({
   },
 
   cancelButton: {
-    // elevation: 5,
+    elevation: 5,
     borderRadius: 10,
     //    borderWidth: 1,
-    // backgroundColor: "white",
-        backgroundColor: '#F44336',
-
+    backgroundColor: "white",
     paddingVertical: 15,
     paddingHorizontal: 30,
-    // backgroundColor: "white",
-    // paddingVertical: 15,
-    // paddingHorizontal: 30,
-    elevation: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 10,
-    marginLeft: 10,
   },
   pedidoContainer: {
     flex: 1,
@@ -749,104 +668,4 @@ const styles = StyleSheet.create({
     elevation: 2,
     backgroundColor: "white",
   },
-  itemImageBackground: {
-  width: '100%',
-  height: 100,
-  justifyContent: 'flex-end',
-  alignItems: 'flex-end',
-  borderRadius: 10,
-  overflow: 'hidden', // This ensures the image doesn't overflow the border radius
-},
-imageStyle: {
-  resizeMode: 'contain',
-},
-textContainer: {
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  padding: 5,
-  borderRadius: 5,
-},
-// itemName: {
-//   fontSize: 16,
-//   fontWeight: 'bold',
-//   color: 'white',
-// },
-  itemImage: {
-    // width: 50,
-    height: 200,
-    marginBottom: 5,
-  },
-  itemName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
-    // backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingHorizontal: 5,
-  },
-  itemPrice: {
-    fontSize: 14,
-    color: 'white',
-    // backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    paddingHorizontal: 5,
-  },
-  buttonContainer: {
-    marginHorizontal:'5%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-
-  buttonText: {
-    // color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
 });
-
-// itemImageBackground: {
-//   width: '100%',
-//   height: 100,
-//   justifyContent: 'flex-end',
-//   alignItems: 'flex-end',
-//   borderRadius: 10,
-//   overflow: 'hidden', // This ensures the image doesn't overflow the border radius
-// },
-// imageStyle: {
-//   resizeMode: 'contain',
-// },
-// textContainer: {
-//   backgroundColor: 'rgba(0, 0, 0, 0.5)',
-//   padding: 5,
-//   borderRadius: 5,
-// },
-// itemName: {
-//   fontSize: 16,
-//   fontWeight: 'bold',
-//   color: 'white',
-// },
-// itemPrice: {
-//   fontSize: 14,
-//   color: 'white',
-// },
-// buttonContainer: {
-//   flexDirection: 'row',
-//   justifyContent: 'space-between',
-//   marginTop: 20,
-// },
-// confirmButton: {
-//   backgroundColor: '#4CAF50',
-//   paddingVertical: 10,
-//   paddingHorizontal: 20,
-//   borderRadius: 5,
-// },
-// cancelButton: {
-//   backgroundColor: '#F44336',
-//   paddingVertical: 10,
-//   paddingHorizontal: 20,
-//   borderRadius: 5,
-// },
-// buttonText: {
-//   color: '#fff',
-//   fontSize: 16,
-//   fontWeight: 'bold',
-// },
-// });
