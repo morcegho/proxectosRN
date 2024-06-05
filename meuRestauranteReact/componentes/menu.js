@@ -7,37 +7,6 @@ import { obterMesas, crearMesa, actualizarMesa, eliminarMesa } from './DatabaseC
 import { carta, menus, bebidas } from './ListaAlimentos';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-// function ModalMesasDisponibles({ visible, onClose, mesas, onSelectMesa, numComensais }) {
-//   const mesasFiltradas = mesas.filter(mesa => mesa.capacidade >= numComensais);
-
-//   return (
-//     <Modal visible={visible} animationType="slide">
-//       <View style={styles.modalContainer}>
-//         <Text style={styles.modalTitle}>Mesas Dispoñibles</Text>
-//         <ScrollView>
-//           <View style={styles.gridContainer}>
-//             {mesasFiltradas.map((mesa, index) => (
-//               <TouchableOpacity
-//                 key={mesa.numero}
-//                 style={[styles.gridItem, index % 2 === 1 && styles.gridItemRight]}
-//                 onPress={() => {
-//                   onSelectMesa(mesa);
-//                   onClose();
-//                 }}
-//               >
-//                 <Text style={styles.itemName}>Mesa {mesa.numero}</Text>
-//                 <Text style={styles.itemPrice}>Capacidade: {mesa.capacidade}</Text>
-//               </TouchableOpacity>
-//             ))}
-//           </View>
-//         </ScrollView>
-//         <TouchableOpacity onPress={onClose} style={styles.cancelButton}>
-//           <Text style={styles.buttonText}>Cancelar</Text>
-//         </TouchableOpacity>
-//       </View>
-//     </Modal>
-//   );
-// }
 
 function ModalMesasDisponibles({ visible, onClose, mesas, onSelectMesa, numComensais, terraza }) {
   const mesasFiltradas = mesas.filter(mesa => 
@@ -53,81 +22,25 @@ function ModalMesasDisponibles({ visible, onClose, mesas, onSelectMesa, numComen
             {mesasFiltradas.map((mesa, index) => (
               <TouchableOpacity
                 key={mesa.numero}
-                style={[styles.gridItem, index % 2 === 1 && styles.gridItemRight]}
+                style={[styles.gridItem, styles.textContainer, index % 2 === 1 ]}
                 onPress={() => {
                   onSelectMesa(mesa);
                   onClose();
                 }}
               >
-                <Text style={styles.itemName}>Mesa {mesa.numero}</Text>
-                <Text style={styles.itemPrice}>Capacidade: {mesa.capacidade}</Text>
+                <Text style={styles.itemName}>Mesa {mesa.numero}  {mesa.terraza && (<Icon name="umbrella" size={24} color="#fff"/>)}</Text>
+                <Text style={styles.itemPrezo}>Capacidade: {mesa.capacidade}</Text>
               </TouchableOpacity>
             ))}
           </View>
         </ScrollView>
-        <TouchableOpacity onPress={onClose} style={[styles.cancelButton, {width:'50%', left: '20%'}]}>
-          <Text style={styles.buttonText}>Cancelar</Text>
+        <TouchableOpacity onPress={onClose} style={[styles.cancelButton, {width:'40%', marginLeft: '55%'}]}>
+        <Text style={styles.buttonText}>Cancelar <Icon name="times" size={20} color="white" /></Text>
         </TouchableOpacity>
       </View>
     </Modal>
   );
 }
-
-// function ModalCartaBebidas({ visible, onClose, engadeAorde, data, title }) {
-//   const [selectedItems, setSelectedItems] = useState([]);
-
-//   const handleItemPress = (item) => {
-//     const updatedItems = selectedItems.includes(item) 
-//       ? selectedItems.filter(selectedItem => selectedItem !== item)
-//       : [...selectedItems, item];
-//     setSelectedItems(updatedItems);
-//   };
-
-//   const handleConfirm = () => {
-//     engadeAorde(selectedItems);
-//     onClose();
-//   };
-
-//   return (
-//     <Modal visible={visible} animationType="slide">
-//       <View style={[styles.modalContainer, styles.centeredModal]}>
-//         <View style={styles.modalContent}>
-//           <Text style={styles.modalTitle}>{title}</Text>
-//           <ScrollView>
-//             <View style={styles.gridContainer}>
-//               {data.map((item) => (
-//                 <TouchableOpacity
-//                   key={item.id}
-//                   style={[styles.gridItem, selectedItems.includes(item) && styles.selectedItem]}
-//                   onPress={() => handleItemPress(item)}
-//                 >
-                 
-//                {item.image && (
-//                     <ImageBackground
-//                       source={item.image}
-//                       style={styles.itemImageBackground}
-//                       imageStyle={styles.imageStyle}
-//                     >
-//                       <Text style={styles.itemName}>{item.name}</Text>
-//                       <Text style={styles.itemPrice}>{item.price} €</Text>
-//                     </ImageBackground>
-//                   )}
-//                   </TouchableOpacity>))}
-//             </View>
-//           </ScrollView>
-//           <View style={styles.buttonContainer}>
-//             <TouchableOpacity onPress={handleConfirm} style={styles.confirmButton}>
-//               <Text style={styles.buttonText}>Confirmar <Icon name="check" size={20} color="green" /></Text>
-//             </TouchableOpacity>
-//             <TouchableOpacity onPress={onClose} style={styles.cancelButton}>
-//               <Text style={styles.buttonText}>Cancelar <Icon name="times" size={20} color="red" /></Text>
-//             </TouchableOpacity>
-//           </View>
-//         </View>
-//       </View>
-//     </Modal>
-//   );
-// }
 
 function ModalCartaBebidas({ visible, onClose, engadeAorde, data, title }) {
   const [selectedItems, setSelectedItems] = useState([]);
@@ -160,12 +73,12 @@ function ModalCartaBebidas({ visible, onClose, engadeAorde, data, title }) {
                   {item.image && (
                     <ImageBackground
                       source={item.image}
-                      style={styles.itemImageBackground}
+                      style={styles.itemImaxeBackground}
                       imageStyle={styles.imageStyle}
                     >
                       <View style={styles.textContainer}>
                         <Text style={styles.itemName}>{item.name}</Text>
-                        <Text style={styles.itemPrice}>{item.price} €</Text>
+                        <Text style={styles.itemPrezo}>{item.price} €</Text>
                       </View>
                     </ImageBackground>
                   )}
@@ -194,10 +107,11 @@ export default function Menu() {
   const [totalGastado, setTotalGastado] = useState(0);
   const [mesaSeleccionada, setMesaSeleccionada] = useState(null);
   const [terraza, setTerraza] = useState(false);
+  const [mesaCreada, setMesaCreada] = useState(false);
   const [numComensais, setNumComensais] = useState('');
   const [mesasDisponibles, setMesasDisponibles] = useState([]);
   const isCrearDisabled = isNaN(parseInt(numComensais)) || parseInt(numComensais) <= 0 || !mesaSeleccionada;
-  const isPagarVisible = mesaSeleccionada && mesaSeleccionada.estado === 'servido';
+  const isPagarVisible = mesaSeleccionada && mesaSeleccionada.estado === 'servida';
 
   useEffect(() => {
     async function obterContidoBase() {
@@ -216,10 +130,10 @@ export default function Menu() {
   const consultarMesasDisponibles = async () => {
     try {
       const mesasDisponibles = await verificarDisponibilidadMesas();
-      console.log('Mesas disponibles:', mesasDisponibles);
+      console.log('Mesas dispoñibles:', mesasDisponibles);
       return mesasDisponibles;
     } catch (error) {
-      console.error('Error al consultar las mesas disponibles:', error);
+      console.error('Erro ao consultar as mesas dispoñibles:', error);
       return [];
     }
   };
@@ -246,11 +160,10 @@ export default function Menu() {
         // Se non está ocupada ou non se atopa na base de datos, está dispoñible
         return !mesaEncontrada || !mesaEncontrada.ocupada;
       });
-  
       // Devolver as mesas libres encontradas
       return mesasLibres;
     } catch (error) {
-      console.error('Erro ao verificar a dispoñibilidade de mesas:', error);
+      console.error('Erro ao verificar a dispoñibilidade das mesas:', error);
       return [];
     }
   };
@@ -260,12 +173,6 @@ export default function Menu() {
     setCurrentPantalla(pantalla);
   };
 
-  const engadeAorde = (items) => {
-    const novoPedido = [...pedido, ...items];
-    setPedido(novoPedido);
-    const totalPrice = items.reduce((total, item) => total + item.price, 0);
-    setTotalGastado(totalGastado + totalPrice);
-  };
 
   const retiraDaOrde = (index) => {
     const removedItem = pedido[index];
@@ -273,12 +180,25 @@ export default function Menu() {
     setPedido(novoPedido);
     setTotalGastado(totalGastado - removedItem.price);
   };
+  const engadeAorde = (items) => {
+    const novoPedido = [...pedido, ...(Array.isArray(items) ? items : [items])];
+    setPedido(novoPedido);
+    const totalPrezo = (Array.isArray(items) ? items : [items]).reduce((total, item) => total + item.price, 0);
+    setTotalGastado(totalGastado + totalPrezo);
+  };
+ 
 
   const handleTerrazaChange = (value) => {
     setTerraza(value);
+    if (value) {
+      engadeAorde({ id: 'terraza', name: 'Terraza', price: 1, type: 'servizo' });
+    } else {
+      const index = pedido.findIndex(item => item.id === 'terraza');
+      if (index !== -1) {
+        retiraDaOrde(index);
+      }
+    }
   };
-
-
   const handleCrearMesa = async () => {
     try {
       const novaMesa = await crearMesa({
@@ -293,6 +213,7 @@ export default function Menu() {
         estado: 'reservada', // Establece estado como "reservada" 
       });
       setMesaSeleccionada(novaMesa);
+      setMesaCreada(true),
       console.log('\n\n--------------------------------Mesa ocupada!------------------------------------\n\n');
 
     } catch (error) {
@@ -315,29 +236,42 @@ export default function Menu() {
     }
   };
 
-
   const handleConfirmarPedido = async () => {
     try {
-      if (mesaSeleccionada) {
-        const mesaActualizada = { ...mesaSeleccionada, estado: 'servido' };
-        await actualizarMesa(mesaSeleccionada._id, mesaActualizada);
-        console.log('Estado da mesa actualizado a "servido"');
-        console.log('Mesa id: ' + mesaSeleccionada._id);
-
-        // Actualiza o texto del botón después de despois de confirmar pedido
+      if (mesaCreada) {
+        let mesaActualizada = { ...mesaSeleccionada, estado: 'servida' };
+        
+        // Verificar se mesaSeleccionada._id é undefined
+        if (!mesaSeleccionada._id) {
+          // Xerar un nuevo ID
+          const novoID = generarID();
+          mesaActualizada = { ...mesaActualizada, _id: novoID };
+          console.log('Nuevo ID generado:', novoID);
+        }
+        
+        // Actualizar a mesa co ID correspondente
+        await actualizarMesa(mesaActualizada._id, mesaActualizada);
+        console.log('Estado da mesa actualizado a "servida"');
+        console.log('ID da mesa:', mesaActualizada._id);
+  
+        // Actualizar o texto do botón ao confirmar o pedido
         const textoBoton = obterTextoBoton();
         console.log(textoBoton);
         setMesaSeleccionada(mesaActualizada);
         console.log(mesaActualizada);
-
       } else {
         alert('Debe seleccionar unha mesa antes de confirmar o pedido');
       }
     } catch (error) {
-      console.error('Erro ao confirmar o pedido:', error);
+      console.error('Error ao confirmar o pedido:', error);
     }
   };
-
+  
+  // Función para generar un ID aleatorio
+  const generarID = () => {
+    return '_' + Math.random().toString(36).substr(2, 9);
+  };
+  
   const handlePagar = async () => {
     try {
       if (mesaSeleccionada) {
@@ -345,7 +279,7 @@ export default function Menu() {
         await actualizarMesa(mesaSeleccionada._id, mesaActualizada);
         console.log('Mesa marcada como "pagada" e "libre" con ocupada = false');
 
-        // Limpiar a pantalla sen borrar o obxecto do servidor
+        // Limpar a pantalla sen borrar o obxecto do servidor
         setCurrentPantalla(null);
         setPedido([]);
         setTotalGastado(0);
@@ -372,7 +306,7 @@ export default function Menu() {
       console.log('A mesa xa foi pagada, non se eliminará.');
     }
 
-    // Limpiar o estado da app
+    // Limpar o estado da app
     setCurrentPantalla(null);
     setPedido([]);
     setTotalGastado(0);
@@ -381,14 +315,19 @@ export default function Menu() {
     setNumComensais('');
   };
 
+  const duasCifrasSelector = /^(.{0,2})$/; // Expression para que non haxa cigras de máis de 2 caracteres
+
 
   const handleNumComensaisChange = (text) => {
-    setNumComensais(text);
+    if (duasCifrasSelector.test(text)) {
+      setNumComensais(text);
+    }
     if (mesaSeleccionada) {
       const novosDatosMesa = { ...mesaSeleccionada, numComensais: parseInt(text) };
       actualizarMesa(mesaSeleccionada._id, novosDatosMesa);
     }
   };
+
 
 
 
@@ -428,16 +367,19 @@ export default function Menu() {
 
         <View style={[styles.bottomBarButtons, styles.horizontalMargin]}>
           <TouchableOpacity style={styles.botonBarBotonTerraza} onPress={handleTerrazaChange}>
-            <Text style={styles.botonBarBotonText}>Terraza</Text>
+            <Text style={styles.botonBarBotonText}>Terraza <Icon name="umbrella" size={24} color="#000"/></Text>
             <Switch value={terraza} onValueChange={handleTerrazaChange} />
           </TouchableOpacity>
+          <View flexDirection='row' marginHorizontal={50}>
+            <Icon name='group'size={24} color="#000"/>
           <TextInput
             style={styles.numComensaisInput}
-            placeholder="Nº Comensais"
+            placeholder="Nº"
             keyboardType="numeric"
             value={numComensais}
             onChangeText={handleNumComensaisChange}
           />
+          </View>
           <TouchableOpacity
             style={[styles.botonBarBoton, { opacity: isCrearDisabled ? 0.5 : 1 }]}
             onPress={handleCrearMesa}
@@ -450,7 +392,7 @@ export default function Menu() {
           <Text style={[styles.buttonText,{color: 'black', textAlign: 'center'}]}>{obterTextoBoton()}</Text>
         </TouchableOpacity>
         <View style={styles.pedidoContainer}>
-          <Text style={styles.pedidoTitle}>Pedido:</Text>
+          <Text style={styles.pedidoTitle}>Resumo do pedido:</Text>
           <ScrollView>
             {pedido.map((item, index) => (
               <View key={index} style={styles.pedidoItem}>
@@ -503,6 +445,7 @@ export default function Menu() {
           onClose={() => setModalVisible(false)}
           mesas={mesasDisponibles}
           onSelectMesa={(mesa) => {
+            mesa.estado='seleccionada'
             setMesaSeleccionada(mesa); // Asigna a mesa seleccionada ao estado
             setModalVisible(false);
           }}
@@ -523,7 +466,8 @@ const styles = StyleSheet.create({
     maxWidth: '100%'
   },
   horizontalMargin: {
-    marginHorizontal: 10,
+    marginHorizontal: 1,
+    justifyContent: 'space-between'
   },
   topBarButtons: {
     flexDirection: 'row',
@@ -545,7 +489,8 @@ const styles = StyleSheet.create({
   },
   bottomBarButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    // justifyContent: 'space-around',
+    maxWidth:'100%',
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 20,
@@ -569,29 +514,31 @@ const styles = StyleSheet.create({
   },
   bottomButtonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: '5%',
     paddingBottom: 20,
-    marginHorizontal: 5,
+    width:"90%",
+    marginHorizontal: "5%",
     maxWidth: '90%'
   },
   bottomButton: {
     backgroundColor: 'lightgreen',
     borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    elevation: 5,
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    elevation: 5
   },
   bottomButtonText: {
-    color: '#fff',
-    fontSize: 18,
+    color: '#000',
+    fontSize: 20,
+    paddingHorizontal: 5,
     fontWeight: 'bold',
     textAlign: 'center',
   },
   confirmButton: {
     backgroundColor: "white",
     paddingVertical: 15,
+   
     paddingHorizontal: 30,
     elevation: 5,
     flexDirection: 'row',
@@ -601,11 +548,16 @@ const styles = StyleSheet.create({
   },
   confirmaBotonVer: {
     backgroundColor: "white",
+    borderWidth: 1,
+    borderColor:'lightgreen',
     paddingVertical: 15,
     paddingHorizontal: 30,
+    marginTop:'2%',
+    marginHorizontal:'10%',
     elevation: 5,
     borderRadius: 10,
-    alignItems: 'right',
+justifyContent:'space-around',
+    textAlign: 'center',
     flexDirection: 'row',
 
   },
@@ -616,14 +568,17 @@ const styles = StyleSheet.create({
   },
 
   numComensaisInput: {
-    flex: 1,
+    // flex: 1,
     backgroundColor: '#fff',
     borderRadius: 10,
-    paddingHorizontal: 10,
-    marginLeft: 10,
+    borderWidth:1,
+    paddingHorizontal: 5,
+    marginHorizontal: 3,
   },
   clearButton: {
     paddingHorizontal: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 15,
   },
   clearButtonText: {
     fontSize: 18,
@@ -632,7 +587,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 10,
     paddingVertical: 15,
-    paddingHorizontal: 30,
+    paddingHorizontal: 20,
     elevation: 5,
   },
   gastadoText: {
@@ -652,12 +607,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  buttonText: {
-    color: '#000',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
+
   modalContainer: {
     flex: 1,
     backgroundColor: '#fff',
@@ -690,21 +640,11 @@ const styles = StyleSheet.create({
     width: 150,
   },
   selectedItem: {
-    backgroundColor: 'lightblue',
+    // backgroundColor: 'lightgreen',
+    borderWidth: 2,
+    borderColor:'green'
   },
-  itemName: {
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  itemPrice: {
-    fontWeight: 'bold',
-    color: 'green',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 20,
-  },
+
 
   cancelButton: {
     // elevation: 5,
@@ -715,9 +655,7 @@ const styles = StyleSheet.create({
 
     paddingVertical: 15,
     paddingHorizontal: 30,
-    // backgroundColor: "white",
-    // paddingVertical: 15,
-    // paddingHorizontal: 30,
+
     elevation: 5,
     flexDirection: 'row',
     alignItems: 'center',
@@ -749,13 +687,13 @@ const styles = StyleSheet.create({
     elevation: 2,
     backgroundColor: "white",
   },
-  itemImageBackground: {
+  itemImaxeBackground: {
   width: '100%',
   height: 100,
   justifyContent: 'flex-end',
   alignItems: 'flex-end',
   borderRadius: 10,
-  overflow: 'hidden', // This ensures the image doesn't overflow the border radius
+  overflow: 'hidden', // que a imaxe non sobrepase
 },
 imageStyle: {
   resizeMode: 'contain',
@@ -765,12 +703,8 @@ textContainer: {
   padding: 5,
   borderRadius: 5,
 },
-// itemName: {
-//   fontSize: 16,
-//   fontWeight: 'bold',
-//   color: 'white',
-// },
-  itemImage: {
+
+  itemImaxe: {
     // width: 50,
     height: 200,
     marginBottom: 5,
@@ -782,7 +716,7 @@ textContainer: {
     // backgroundColor: 'rgba(0, 0, 0, 0.5)',
     paddingHorizontal: 5,
   },
-  itemPrice: {
+  itemPrezo: {
     fontSize: 14,
     color: 'white',
     // backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -801,52 +735,3 @@ textContainer: {
     fontWeight: 'bold',
   },
 });
-
-// itemImageBackground: {
-//   width: '100%',
-//   height: 100,
-//   justifyContent: 'flex-end',
-//   alignItems: 'flex-end',
-//   borderRadius: 10,
-//   overflow: 'hidden', // This ensures the image doesn't overflow the border radius
-// },
-// imageStyle: {
-//   resizeMode: 'contain',
-// },
-// textContainer: {
-//   backgroundColor: 'rgba(0, 0, 0, 0.5)',
-//   padding: 5,
-//   borderRadius: 5,
-// },
-// itemName: {
-//   fontSize: 16,
-//   fontWeight: 'bold',
-//   color: 'white',
-// },
-// itemPrice: {
-//   fontSize: 14,
-//   color: 'white',
-// },
-// buttonContainer: {
-//   flexDirection: 'row',
-//   justifyContent: 'space-between',
-//   marginTop: 20,
-// },
-// confirmButton: {
-//   backgroundColor: '#4CAF50',
-//   paddingVertical: 10,
-//   paddingHorizontal: 20,
-//   borderRadius: 5,
-// },
-// cancelButton: {
-//   backgroundColor: '#F44336',
-//   paddingVertical: 10,
-//   paddingHorizontal: 20,
-//   borderRadius: 5,
-// },
-// buttonText: {
-//   color: '#fff',
-//   fontSize: 16,
-//   fontWeight: 'bold',
-// },
-// });

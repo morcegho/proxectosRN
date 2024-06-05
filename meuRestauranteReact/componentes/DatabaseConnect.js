@@ -1,5 +1,5 @@
 // const API_URL = 'http://localhost:3000/api/mesas'; 
-const API_URL = 'http://192.168.8.103:3000/api/mesas'; // Cambia localhost pola IP do servidor se é necesario
+const API_URL = 'http://192.168.8.105:3000/api/mesas'; // Cambia localhost pola IP do servidor se é necesario
 // usar ipconfig e ver a ipv 4 192.168.137.1
 
 
