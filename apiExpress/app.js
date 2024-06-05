@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000;
 
 // Conexión a MongoDB
 const uri = "mongodb+srv://mvilceb:noliu111@cluster0.iqwdukh.mongodb.net/?retryWrites=true&w=majority";
-const dbName = "restaurante3";
+const dbName = "restaurante30";
 
 mongoose.connect(uri, {
   useNewUrlParser: true,
