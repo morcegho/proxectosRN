@@ -18,7 +18,7 @@ def crear_mesa(nueva_mesa):
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        print('Error al crear la mesa:', e)
+        print('Erro ao crear a mesa:', e)
 
 # Actualizar unha mesa existente
 def actualizar_mesa(id_mesa, datos_mesa):
@@ -28,7 +28,7 @@ def actualizar_mesa(id_mesa, datos_mesa):
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        print('Error al actualizar la mesa:', e)
+        print('Erro ao actualizar a mesa:', e)
 
 # Eliminar unha mesa existente
 def eliminar_mesa(id_mesa):
@@ -44,12 +44,12 @@ def eliminar_mesa(id_mesa):
 #---------------------------------------------------------
 # Exemplo de uso
 if __name__ == '__main__':
-    # Obtener todas las mesas
+    # Obter todas as mesas
     mesas = obter_mesas()
     print('Mesas disponibles:', mesas)
 
-    # Crear una nueva mesa
-    nova_mesa = {'numero': 10, 'capacidad': 4, 'ocupada': False}
+    # Crear unha nova mesa
+    nova_mesa = {'numero': 10, 'capacidade': 4, 'ocupada': False}
     mesa_creada = crear_mesa(nueva_mesa)
     print('Mesa creada:', mesa_creada)
 

@@ -1,4 +1,5 @@
 // ListaAlimentos.js
+ // Agrega rutas ás imaxes cando estean, se non existen manter comentado  
 
 // Lista de pratos individuais na carta
 export const carta = [
@@ -43,7 +44,6 @@ export const carta = [
       price: 10,
       image: require('../assets/imaxes/menu2.jpg'),
       
- // Agrega a ruta á imaxe cando existan  
     }, {
       id: 3,
       name: 'Menú 3',
@@ -56,9 +56,8 @@ export const carta = [
       price: 10,
       image: require('../assets/imaxes/menu3.jpg'),
       
- // Agrega a ruta á imaxe cando existan  
     },
-    // más menús 
+    // máis menús 
   ];
   
   // Lista de bebidas
@@ -75,6 +74,5 @@ export const carta = [
     // { id: 10, name: 'Bebida 10', category: 'bebida', price: 2.75 , image: require('../assets/imaxes/bebidas/bebida10.png') },
     // { id: 11, name: 'Bebida 11', category: 'bebida', price: 2.75 , image: require('../assets/imaxes/bebidas/bebida11.png') },
     // { id: 12, name: 'Bebida 11', category: 'bebida', price: 2.75 , image: require('../assets/imaxes/bebidas/bebida12.png') },
-
   ];
   
