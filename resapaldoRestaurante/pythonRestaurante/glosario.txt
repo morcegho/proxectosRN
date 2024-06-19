@@ -1,0 +1,225 @@
+1. requests
+
+Tipo: Biblioteca
+Explicación: Biblioteca de Python utilizada para facer peticións HTTP de maneira sinxela. Soporta métodos como GET, POST, PUT, DELETE, entre outros.
+2. API_URL
+
+Tipo: String
+Explicación: Cadea de texto que contén a URL da API á que se van a facer as peticións HTTP. Neste caso, apunta a http://192.168.8.100:3000/api/mesas.
+3. response = requests.get(API_URL)
+
+Tipo: Función
+Explicación: Fai unha petición HTTP do tipo GET á URL especificada en API_URL. Devolve un obxecto Response que contén a resposta do servidor.
+4. response.raise_for_status()
+
+Tipo: Método
+Explicación: Lanza unha excepción HTTPError se a resposta HTTP ten un código de status indicativo de erro (4xx ou 5xx).
+5. response.json()
+
+Tipo: Método
+Explicación: Converte o corpo da resposta HTTP nun obxecto Python (normalmente un dicionario ou unha lista) a partir dun formato JSON.
+6. except requests.exceptions.RequestException as e
+
+Tipo: Bloque de excepción
+Explicación: Captura calquera excepción que herde de RequestException, que é a clase base para todas as excepcións en requests. e contén a excepción capturada.
+7. print('Erro ao obter as mesas:', e)
+
+Tipo: Función
+Explicación: Imprime unha mensaxe de erro seguida da excepción capturada e.
+8. requests.post(API_URL, json=nova_mesa)
+
+Tipo: Función
+Explicación: Fai unha petición HTTP do tipo POST á URL especificada en API_URL, enviando nova_mesa como o corpo da petición en formato JSON.
+9. requests.put(url, json=datos_mesa)
+
+Tipo: Función
+Explicación: Fai unha petición HTTP do tipo PUT á URL especificada en url, enviando datos_mesa como o corpo da petición en formato JSON.
+10. requests.delete(url)
+
+Tipo: Función
+Explicación: Fai unha petición HTTP do tipo DELETE á URL especificada en url.
+11. return response.json()
+
+Tipo: Función
+Explicación: Devolve a resposta da petición HTTP en formato JSON.
+12. def obter_mesas()
+
+Tipo: Definición de función
+Explicación: Define unha función para obter todas as mesas desde o servidor.
+13. def crear_mesa(nova_mesa)
+
+Tipo: Definición de función
+Explicación: Define unha función para crear unha nova mesa enviando os datos da mesa en formato JSON.
+14. def actualizar_mesa(id_mesa, datos_mesa)
+
+Tipo: Definición de función
+Explicación: Define unha función para actualizar unha mesa existente identificada por id_mesa, enviando os datos actualizados en formato JSON.
+15. def eliminar_mesa(id_mesa)
+
+Tipo: Definición de función
+Explicación: Define unha función para eliminar unha mesa existente identificada por id_mesa.
+16. if __name__ == '__main__':
+
+Tipo: Condición especial
+Explicación: Executa o bloque de código seguinte só se o script é executado directamente, non se é importado como un módulo noutro script.
+17. mesas = obter_mesas()
+
+Tipo: Chamado de función
+Explicación: Chama á función obter_mesas e garda o resultado en mesas.
+18. print('Mesas dispoñibles:', mesas)
+
+Tipo: Función
+Explicación: Imprime a lista de mesas dispoñibles.
+19. nova_mesa = {'numero': 10, 'capacidade': 4, 'ocupada': False}
+
+Tipo: Dicionario
+Explicación: Crea un dicionario con datos da nova mesa.
+20. mesa_creada = crear_mesa(nova_mesa)
+
+Tipo: Chamado de función
+Explicación: Chama á función crear_mesa co dicionario nova_mesa e garda o resultado en mesa_creada.
+21. id_mesa_actualizar = 'id_da_mesa_que_actualizar'
+
+Tipo: String
+Explicación: Define unha cadea de texto co ID da mesa a actualizar.
+22. datos_actualizados = {'ocupada': True}
+
+Tipo: Dicionario
+Explicación: Crea un dicionario cos datos actualizados da mesa.
+23. mesa_actualizada = actualizar_mesa(id_mesa_actualizar, datos_actualizados)
+
+Tipo: Chamado de función
+Explicación: Chama á función actualizar_mesa co ID da mesa e os datos actualizados, e garda o resultado en mesa_actualizada.
+24. id_mesa_eliminar = 'id_da_mesa_a_eliminar'
+
+Tipo: String
+Explicación: Define unha cadea de texto co ID da mesa a eliminar.
+25. resultado_eliminacion = eliminar_mesa(id_mesa_eliminar)
+
+Tipo: Chamado de función
+Explicación: Chama á función eliminar_mesa co ID da mesa a eliminar e garda o resultado en resultado_eliminacion.
+26. print('Resultado de eliminación:', resultado_eliminacion)
+
+Tipo: Función
+Explicación: Imprime o resultado da eliminación da mesa.
+
+---------------
+Biblioteca e Configuración de API
+
+
+import requests
+Tipo: Biblioteca
+Explicación: Importa a biblioteca requests, que permite realizar peticións HTTP de maneira sinxela.
+
+
+API_URL = 'http://192.168.8.100:3000/api/mesas'
+Tipo: String
+Explicación: Cadea de texto que contén a URL base da API á que se van a realizar as peticións HTTP.
+Funcións para Interactuar coa API
+1. obter_mesas
+
+
+def obter_mesas():
+    try:
+        response = requests.get(API_URL)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print('Erro ao obter as mesas:', e)
+Tipo: Definición de Función
+Explicación: Esta función realiza unha petición GET para obter todas as mesas desde a API.
+Detalles:
+requests.get(API_URL): Realiza unha petición GET á URL da API.
+response.raise_for_status(): Lanza unha excepción se a resposta ten un código de estado de erro (4xx ou 5xx).
+response.json(): Converte o corpo da resposta JSON nun obxecto Python.
+except requests.exceptions.RequestException as e: Captura calquera excepción relacionada coa petición e imprime unha mensaxe de erro.
+2. crear_mesa
+
+
+def crear_mesa(nova_mesa):
+    try:
+        response = requests.post(API_URL, json=nova_mesa)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print('Erro ao crear a mesa:', e)
+Tipo: Definición de Función
+Explicación: Esta función realiza unha petición POST para crear unha nova mesa na API.
+Detalles:
+requests.post(API_URL, json=nova_mesa): Realiza unha petición POST á URL da API enviando nova_mesa como o corpo da petición en formato JSON.
+response.raise_for_status(): Lanza unha excepción se a resposta ten un código de estado de erro.
+response.json(): Converte o corpo da resposta JSON nun obxecto Python.
+except requests.exceptions.RequestException as e: Captura calquera excepción relacionada coa petición e imprime unha mensaxe de erro.
+3. actualizar_mesa
+
+
+def actualizar_mesa(id_mesa, datos_mesa):
+    try:
+        url = f'{API_URL}/{id_mesa}'
+        response = requests.put(url, json=datos_mesa)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print('Erro ao actualizar a mesa:', e)
+Tipo: Definición de Función
+Explicación: Esta función realiza unha petición PUT para actualizar unha mesa existente na API.
+Detalles:
+url = f'{API_URL}/{id_mesa}': Constrúe a URL específica para a mesa que se vai actualizar.
+requests.put(url, json=datos_mesa): Realiza unha petición PUT á URL especificada enviando datos_mesa como o corpo da petición en formato JSON.
+response.raise_for_status(): Lanza unha excepción se a resposta ten un código de estado de erro.
+response.json(): Converte o corpo da resposta JSON nun obxecto Python.
+except requests.exceptions.RequestException as e: Captura calquera excepción relacionada coa petición e imprime unha mensaxe de erro.
+4. eliminar_mesa
+
+
+def eliminar_mesa(id_mesa):
+    try:
+        url = f'{API_URL}/{id_mesa}'
+        response = requests.delete(url)
+        response.raise_for_status()
+        return {'message': 'Mesa eliminada correctamente'}
+    except requests.exceptions.RequestException as e:
+        print('Erro ao eliminar a mesa:', e)
+Tipo: Definición de Función
+Explicación: Esta función realiza unha petición DELETE para eliminar unha mesa existente na API.
+Detalles:
+url = f'{API_URL}/{id_mesa}': Constrúe a URL específica para a mesa que se vai eliminar.
+requests.delete(url): Realiza unha petición DELETE á URL especificada.
+response.raise_for_status(): Lanza unha excepción se a resposta ten un código de estado de erro.
+except requests.exceptions.RequestException as e: Captura calquera excepción relacionada coa petición e imprime unha mensaxe de erro.
+Exemplo de Uso
+if __name__ == '__main__':
+
+
+if __name__ == '__main__':
+    mesas = obter_mesas()
+    print('Mesas dispoñibles:', mesas)
+
+    nova_mesa = {'numero': 10, 'capacidade': 4, 'ocupada': False}
+    mesa_creada = crear_mesa(nova_mesa)
+    print('Mesa creada:', mesa_creada)
+
+    id_mesa_actualizar = 'id_da_mesa_que_actualizar'
+    datos_actualizados = {'ocupada': True}
+    mesa_actualizada = actualizar_mesa(id_mesa_actualizar, datos_actualizados)
+    print('Mesa actualizada:', mesa_actualizada)
+
+    id_mesa_eliminar = 'id_da_mesa_a_eliminar'
+    resultado_eliminacion = eliminar_mesa(id_mesa_eliminar)
+    print('Resultado de eliminación:', resultado_eliminacion)
+Tipo: Bloque de código condicional
+Explicación: Este bloque de código só se executa se o script é executado directamente, non se é importado como un módulo noutro script.
+
+Detalles:
+mesas = obter_mesas(): Chama á función obter_mesas e garda o resultado en mesas.
+print('Mesas dispoñibles:', mesas): Imprime a lista de mesas dispoñibles.
+nova_mesa = {'numero': 10, 'capacidade': 4, 'ocupada': False}: Define un dicionario con datos da nova mesa.
+mesa_creada = crear_mesa(nova_mesa): Chama á función crear_mesa co dicionario nova_mesa e garda o resultado en mesa_creada.
+print('Mesa creada:', mesa_creada): Imprime a mesa creada.
+id_mesa_actualizar = 'id_da_mesa_que_actualizar': Define unha cadea de texto co ID da mesa a actualizar.
+datos_actualizados = {'ocupada': True}: Define un dicionario cos datos actualizados da mesa.
+mesa_actualizada = actualizar_mesa(id_mesa_actualizar, datos_actualizados): Chama á función actualizar_mesa co ID da mesa e os datos actualizados, e garda o resultado en mesa_actualizada.
+print('Mesa actualizada:', mesa_actualizada): Imprime a mesa actualizada.
+id_mesa_eliminar = 'id_da_mesa_a_eliminar': Define unha cadea de texto co ID da mesa a eliminar.
+resultado_eliminacion = eliminar_mesa(id_mesa_eliminar): Chama á función eliminar_mesa co ID da mesa a eliminar e garda o resultado en resultado_eliminacion.
+print('Resultado de eliminación:', resultado_eliminacion): Imprime o resultado da eliminación da mesa.

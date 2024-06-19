@@ -9,12 +9,12 @@
   "dependencies": {
     "@expo/metro-config": "^0.18.4",
     "@expo/vector-icons": "^14.0.0",
-    "expo": "~51.0.14",
+    "expo": "^51.0.9",
     "expo-status-bar": "~1.12.1",
     "metro": "^0.80.9",
     "metro-config": "^0.80.9",
     "react": "18.2.0",
-    "react-native": "0.74.2",
+    "react-native": "0.74.1",
     "react-native-paper": "4.9.2",
     "react-native-vector-icons": "*"
   },
@@ -23,5 +23,5 @@
   },
   "private": true,
   "name": "meuRestauranteReact",
-  "version": "1.2.0"
+  "version": "1.0.0"
 }

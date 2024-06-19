@@ -1,10 +1,12 @@
-//lóxica: verificar dispoñibles, se existe algún obxecto no servidor no que o número de mesa (propiedade "numero") apareza como "ocupada": true significa que está ocupada neste momento, por tanto a mesa non está dispoñible.
-// Se non existe no servidor ningún obxecto con ese número de mesa significa que está dispoñible. Finalmente, se todos os obxectos co número buscado no servidor teñen en "false" a propiedade "ocupada" significa que esa mesa finalizou todos os servezos e volve estar dispoñible.
+//lçoxica: verificar dispoñibles, se existe algún obxecto no servidor no que o número de mesa (propiedade "numero") apareza como "ocupada": true significa que está ocupada neste momento, por tanto a mesa non está dispoñible.
+// Se non existe no servidor ningún oxecto con ese número de mesa significa que está dispoñible. Finalmente, se todos os obxectos co número buscado no servidor teñen en "false" a propiedade "ocupada" significa que esa mesa finalizou todos os servezos e volve estar dispoñible.
+
 import React, { useState, useEffect } from 'react';
 import { View, Image, Button, TouchableOpacity, StyleSheet, Text, Modal, ScrollView, Switch, TextInput, ImageBackground, StatusBar } from 'react-native';
 import { obterMesas, crearMesa, actualizarMesa, eliminarMesa } from './DatabaseConnect';
 import { carta, menus, bebidas } from './ListaAlimentos';
 import Icon from 'react-native-vector-icons/FontAwesome';
+
 
 function ModalMesasDisponibles({ visible, onClose, mesas, onSelectMesa, numComensais, terraza }) {
   const mesasFiltradas = mesas.filter(mesa => 
@@ -111,6 +113,7 @@ export default function Menu() {
   const isCrearDisabled = isNaN(parseInt(numComensais)) || parseInt(numComensais) <= 0 || !mesaSeleccionada;
   const isPagarVisible = mesaSeleccionada && mesaSeleccionada.estado === 'servida';
 
+
   const [apiUrl, setApiUrl] = useState('http://192.168.8.105:3000/api/mesas');
   const [newApiUrl, setNewApiUrl] = useState(apiUrl);
   useEffect(() => {
@@ -131,7 +134,7 @@ export default function Menu() {
   };
   const consultarMesasDisponibles = async () => {
     try {
-      const mesasDisponibles = await verificarDisponibilidadeMesas();
+      const mesasDisponibles = await verificarDisponibilidadMesas();
       console.log('Mesas dispoñibles:', mesasDisponibles);
       return mesasDisponibles;
     } catch (error) {
@@ -140,7 +143,7 @@ export default function Menu() {
     }
   };
   
-  const verificarDisponibilidadeMesas = async () => {
+  const verificarDisponibilidadMesas = async () => {
     try {
       // Obter todas as mesas da base de datos
       const mesasDisponibles = await obterMesas(apiUrl);
@@ -174,6 +177,7 @@ export default function Menu() {
   const handleMenuPress = (pantalla) => {
     setCurrentPantalla(pantalla);
   };
+
 
   const retiraDaOrde = (index) => {
     const removedItem = pedido[index];
@@ -363,21 +367,12 @@ export default function Menu() {
     <ImageBackground>
       <View style={styles.container}>
       <TextInput
-          style={styles.input}
-          value={newApiUrl}
-          onChangeText={setNewApiUrl}
-          placeholder="Ingresa nova URL de API"
-        />
-        <TouchableOpacity style={styles.apiButton} onPress={handleChangeApiUrl}>
-          <Text style={styles.apiButtonText}>Cambiar URL de API</Text>
-        </TouchableOpacity>
-      {/* <TextInput
         style={styles.input}
         value={newApiUrl}
         onChangeText={setNewApiUrl}
-        placeholder="Ingresa nova URL de API"
+        placeholder="Ingrese nueva URL de API"
       />
-      <Button title="Cambiar URL de API" onPress={handleChangeApiUrl} /> */}
+      <Button title="Cambiar URL de API" onPress={handleChangeApiUrl} />
         <View style={styles.topBarButtons}>
           <TouchableOpacity style={styles.topBarButton} onPress={() => handleMenuPress('Menús')}>
             <Icon name="cutlery" size={20} color="#fff" />
@@ -758,29 +753,8 @@ textContainer: {
   },
 
   buttonText: {
-    color: '#fff',
+    // color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  input: {
-    height: 20,
-    borderColor: 'gray',
-    textAlign:'center',
-    borderWidth: 1,
-    borderColor: '#007bff',
-    // marginBottom: 20,
-    paddingLeft: 8,
-    borderRadius: 5,
-  },
-  apiButton: {
-    backgroundColor: '#007bff',
-    // padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  apiButtonText: {
-    color: '#fff',
-    fontSize: 16,
   },
 });
